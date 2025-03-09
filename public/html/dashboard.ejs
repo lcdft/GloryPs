@@ -17,18 +17,18 @@
 
         .form-container {
             background-color: #2b4d6d;
-            border: 5px solid #87b8cc; /* Slightly reduced border thickness */
+            border: 6px solid #87b8cc;
             border-radius: 8px;
-            padding: 1.5rem; /* Reduced padding */
-            width: 500px; /* Reduced width */
+            padding: 1.5rem;
+            width: 600px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .input-field {
             background-color: #2b4d6d;
-            border: 2px solid #81d4fa; /* Slightly reduced border thickness */
+            border: 3px solid #81d4fa;
             border-radius: 4px;
-            padding: 0.6rem 0.8rem; /* Reduced padding */
+            padding: 0.5rem 0.8rem;
             color: white;
             width: 100%;
             transition: border-color 0.3s ease;
@@ -42,7 +42,7 @@
         .login-button {
             background-color: #00b8ff;
             color: white;
-            padding: 0.6rem 1.2rem; /* Reduced padding */
+            padding: 0.5rem 1.2rem;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -61,6 +61,10 @@
         .register-link:hover {
             text-decoration: underline;
         }
+
+        .space-y-4 > * + * {
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body> 
@@ -73,7 +77,7 @@
             method="post"
             action="/player/growid/login/validate"
             accept-charset="UTF-8"
-            id="loginForm" class="space-y-4">
+            id="loginForm" class="space-y-4"> 
             <input name="type" value="log" type="hidden" />
             <input name="_token" value="<%= JSON.stringify(data) %>" type="hidden" />
             <div>
@@ -91,7 +95,7 @@
             </div>
             <button id="loginButton" class="login-button w-full">Log in</button>
         </form>
-        <p class="text-center mt-4 text-white text-sm">Don't have an account? <a href="#" class="register-link">Register!</a></p> 
+        <p class="text-center mt-3 text-white text-sm">Don't have an account? <a href="#" class="register-link">Register!</a></p> 
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
