@@ -56,6 +56,7 @@
         .register-link {
             color: #ff9800;
             text-decoration: none;
+            cursor: pointer;
         }
 
         .register-link:hover {
@@ -95,7 +96,9 @@
             </div>
             <button id="loginButton" class="login-button w-full">Log in</button>
         </form>
-        <p class="text-center mt-1 text-white text-sm">Don't have an account? <a href="#" class="register-link">Register!</a></p> 
+        <p class="text-center mt-1 text-white text-sm">
+            Don't have an account? <a href="#" class="register-link" onclick="window.close()">Register!</a>
+        </p> 
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
