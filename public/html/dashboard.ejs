@@ -6,51 +6,103 @@
     <title>Growtopia - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            /* Removed background gradient */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .form-container {
+            background-color: #2b4d6d;
+            border: 6px solid #87b8cc;
+            border-radius: 8px;
+            padding: 2rem;
+            width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-field {
+            background-color: #2b4d6d;
+            border: 3px solid #81d4fa;
+            border-radius: 4px;
+            padding: 0.75rem 1rem;
+            color: white;
+            width: 100%;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #00b8ff;
+        }
+
+        .login-button {
+            background-color: #00b8ff;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-button:hover {
+            background-color: #06a4dd;
+        }
+
+        .register-link {
+            color: #ff9800;
+            text-decoration: none;
+        }
+
+        .register-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
-<body class="flex flex-col items-center justify-center h-screen bg-gray-900">
-    <div class="fixed inset-0 flex items-center justify-center">
-        <div class="relative bg-gray-800 border-4 border-blue-600 shadow-lg p-10 w-[550px] rounded-lg">
-            <p class="text-white text-center font-bold text-3xl mb-6">Login</p>
-            <div id="errorDiv" class="hidden flex flex-col mt-2 text-xs text-red-700 font-bold px-3 py-2 bg-red-100 rounded">
-                <a id="errorMessage"></a>
-            </div>
-            <form 
+<body> 
+    <div class="form-container">
+        <h2 class="text-2xl font-semibold text-center text-white mb-6">Log in with your Account</h2>
+        <div id="errorDiv" class="hidden flex flex-col mt-2 text-xs text-red-700 font-bold px-[5px] bg-[#2b4d6d] rounded">
+            <a id="errorMessage"></a>
+        </div>
+        <form 
             method="post"
             action="/player/growid/login/validate"
             accept-charset="UTF-8"
-            id="loginForm" class="mt-3">
-                <div class="mb-4">
-                    <input name="type" value="log" type="hidden" />
-                    <input name="_token" value="<%= JSON.stringify(data) %>" type="hidden" />
-                    <label for="loginGrowId" class="block text-white text-sm mb-2">GrowID</label>
-                    <div class="flex items-center border-2 border-blue-500 rounded bg-gray-700 px-3 py-2">
-                        <i class="fas fa-user text-white mr-2 text-sm"></i>
-                        <input type="text" name="growId" id="loginGrowId" class="w-full bg-gray-700 text-white text-sm placeholder-gray-400 focus:outline-none" placeholder="Enter your growid">
-                    </div>
+            id="loginForm" class="space-y-4">
+            <input name="type" value="log" type="hidden" />
+            <input name="_token" value="<%= JSON.stringify(data) %>" type="hidden" />
+            <div>
+                <label for="loginGrowId" class="block text-white text-sm">Your Account GrowID</label>
+                <input type="text" name="growId" id="loginGrowId" class="input-field mt-1" placeholder="Enter your growid">
+            </div>
+            <div>
+                <label for="loginPassword" class="block text-white text-sm">Your Account Password</label>
+                <div class="relative">
+                    <input type="password" name="password" id="loginPassword" class="input-field mt-1" placeholder="Enter your password">
+                    <button type="button" id="toggleLogPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-white focus:outline-none text-sm">
+                        <i class="fas fa-eye"></i>
+                    </button>
                 </div>
-                <div class="mb-4">
-                    <label for="loginPassword" class="block text-white text-sm mb-2">Password</label>
-                    <div class="flex items-center border-2 border-blue-500 rounded bg-gray-700 px-3 py-2">
-                        <i class="fas fa-lock text-white mr-2 text-sm"></i>
-                        <input type="password" name="password" id="loginPassword" class="w-full bg-gray-700 text-white text-sm placeholder-gray-400 focus:outline-none" placeholder="Enter your password">
-                        <button type="button" id="toggleLogPassword" class="text-white ml-2 focus:outline-none text-sm">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="flex justify-end items-center">
-                    <button id="loginButton" class="px-4 py-2 rounded bg-blue-600 text-white text-sm hover:bg-blue-500 transition duration-300 ease-in-out transform hover:scale-105">Login</button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <button id="loginButton" class="login-button w-full">Log in</button>
+        </form>
+        <p class="text-center mt-4 text-white">Don't have an account? <a href="#" class="register-link">Register!</a></p>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (localStorage.getItem('growId')) {
                 document.getElementById('loginGrowId').value = localStorage.getItem('growId');
             }
-        });
 
+            const loginGrowId = document.getElementById('loginGrowId').value
+            const loginPassword = document.getElementById('loginPassword').value
+        });
         document.getElementById('loginButton').addEventListener('click', function (event) {
             event.preventDefault();
 
@@ -70,10 +122,9 @@
                 loginForm.submit();
                 localStorage.setItem('growId', document.getElementById('loginGrowId').value);
             }
-        });
-
+        })
         document.getElementById('toggleLogPassword').addEventListener('click', function () {
-            const LpasswordField = document.getElementById('loginPassword');
+            const LpasswordField = document.getElementById('loginPassword')
             const LpasswordFieldType = LpasswordField.getAttribute('type');
             if (LpasswordFieldType === 'password') {
                 LpasswordField.setAttribute('type', 'text');
