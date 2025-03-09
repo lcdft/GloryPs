@@ -19,7 +19,7 @@
             background-color: #2b4d6d;
             border: 6px solid #87b8cc;
             border-radius: 8px;
-            padding: 1rem; /* Further reduced padding */
+            padding: 0.75rem;
             width: 600px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
@@ -28,7 +28,7 @@
             background-color: #2b4d6d;
             border: 3px solid #81d4fa;
             border-radius: 4px;
-            padding: 0.4rem 0.7rem; /* Further reduced padding */
+            padding: 0.3rem 0.6rem;
             color: white;
             width: 100%;
             transition: border-color 0.3s ease;
@@ -42,7 +42,7 @@
         .login-button {
             background-color: #00b8ff;
             color: white;
-            padding: 0.4rem 1rem; /* Further reduced padding */
+            padding: 0.3rem 0.9rem;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -63,21 +63,21 @@
         }
 
         .space-y-4 > * + * {
-            margin-top: 0.75rem; /* Further reduced spacing */
+            margin-top: 0.5rem;
         }
     </style>
 </head>
 <body> 
     <div class="form-container">
-        <h2 class="text-xl font-semibold text-center text-white mb-3">Log in with your Account</h2>
-        <div id="errorDiv" class="hidden flex flex-col mt-2 text-xs text-red-700 font-bold px-[5px] bg-[#2b4d6d] rounded">
+        <h2 class="text-xl font-semibold text-center text-white mb-2">Log in with your Account</h2> 
+        <div id="errorDiv" class="hidden flex flex-col mt-1 text-xs text-red-700 font-bold px-[5px] bg-[#2b4d6d] rounded">
             <a id="errorMessage"></a>
         </div>
         <form 
             method="post"
             action="/player/growid/login/validate"
             accept-charset="UTF-8"
-            id="loginForm" class="space-y-4">
+            id="loginForm" class="space-y-4"> 
             <input name="type" value="log" type="hidden" />
             <input name="_token" value="<%= JSON.stringify(data) %>" type="hidden" />
             <div>
@@ -95,7 +95,7 @@
             </div>
             <button id="loginButton" class="login-button w-full">Log in</button>
         </form>
-        <p class="text-center mt-2 text-white text-sm">Don't have an account? <a href="#" class="register-link">Register!</a></p>
+        <p class="text-center mt-1 text-white text-sm">Don't have an account? <a href="#" class="register-link">Register!</a></p> 
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
