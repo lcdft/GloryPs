@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            /* Removed background gradient */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -18,18 +17,18 @@
 
         .form-container {
             background-color: #2b4d6d;
-            border: 6px solid #87b8cc;
+            border: 5px solid #87b8cc; /* Slightly reduced border thickness */
             border-radius: 8px;
-            padding: 2rem;
-            width: 600px;
+            padding: 1.5rem; /* Reduced padding */
+            width: 500px; /* Reduced width */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .input-field {
             background-color: #2b4d6d;
-            border: 3px solid #81d4fa;
+            border: 2px solid #81d4fa; /* Slightly reduced border thickness */
             border-radius: 4px;
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 0.8rem; /* Reduced padding */
             color: white;
             width: 100%;
             transition: border-color 0.3s ease;
@@ -43,7 +42,7 @@
         .login-button {
             background-color: #00b8ff;
             color: white;
-            padding: 0.75rem 1.5rem;
+            padding: 0.6rem 1.2rem; /* Reduced padding */
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -66,7 +65,7 @@
 </head>
 <body> 
     <div class="form-container">
-        <h2 class="text-2xl font-semibold text-center text-white mb-6">Log in with your Account</h2>
+        <h2 class="text-xl font-semibold text-center text-white mb-4">Log in with your Account</h2> 
         <div id="errorDiv" class="hidden flex flex-col mt-2 text-xs text-red-700 font-bold px-[5px] bg-[#2b4d6d] rounded">
             <a id="errorMessage"></a>
         </div>
@@ -92,7 +91,7 @@
             </div>
             <button id="loginButton" class="login-button w-full">Log in</button>
         </form>
-        <p class="text-center mt-4 text-white">Don't have an account? <a href="#" class="register-link">Register!</a></p>
+        <p class="text-center mt-4 text-white text-sm">Don't have an account? <a href="#" class="register-link">Register!</a></p> 
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
