@@ -168,26 +168,33 @@
         <form id="loginForm">
             <input type="text" id="loginGrowID" placeholder="Your Account GrowID" required>
             <input type="password" id="loginPassword" placeholder="Your Account Password" required>
-            <p class="register-link">Don't have an account? <a href="register.html" style="color: #bd4e19; text-decoration: none;">Register!</a></p>
             <button type="submit">Log in</button>
+            <p class="register-link">Don't have an account? <a href="register.html" style="color: #bd4e19; text-decoration: none;">Register!</a></p>
         </form>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Load stored GrowID if exists
             if (localStorage.getItem('growId')) {
                 document.getElementById('loginGrowID').value = localStorage.getItem('growId');
             }
 
+            // Get the form and input fields
             const loginForm = document.getElementById('loginForm');
             const loginGrowId = document.getElementById('loginGrowID');
             const loginPassword = document.getElementById('loginPassword');
 
+            // Form submission logic
             loginForm.addEventListener('submit', function (event) {
                 event.preventDefault();
 
                 const uName = loginGrowId.value;
                 const uPass = loginPassword.value;
+
+                // Clear previous messages
+                const existingMessage = document.querySelector('.message');
+                if (existingMessage) existingMessage.remove();
 
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message');
