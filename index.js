@@ -32,7 +32,7 @@ app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100, headers: true }));
 // Middleware to check the "meta" value
 app.use((req, res, next) => {
     const meta = req.headers['meta'];
-    if (meta !== 'GloryPs') {
+    if (meta !== 'GloryPso') {
         return res.status(403).send('Access denied: Invalid meta value');
     }
     next();
