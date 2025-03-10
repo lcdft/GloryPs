@@ -29,6 +29,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100, headers: true }));
 
+// Middleware to check the "meta" value
+app.use((req, res, next) => {
+    const meta = req.headers['meta'];
+    if (meta !== 'GloryPs') {
+        return res.status(403).send('Access denied: Invalid meta value');
+    }
+    next();
+});
+
 app.all('/player/login/dashboard', function (req, res) {
     const tData = {};
     try {
