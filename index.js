@@ -20,7 +20,7 @@ app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header(
         'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept',
+        'Origin, X-Requested-With, Content-Type, Accept, Meta', // Include Meta in allowed headers
     );
     console.log(`[${new Date().toLocaleString()}] ${req.method} ${req.url} - ${res.statusCode}`);
     next();
@@ -32,7 +32,7 @@ app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100, headers: true }));
 // Middleware to check the "meta" value
 app.use((req, res, next) => {
     const meta = req.headers['meta'];
-    if (meta !== 'GloryPso') {
+    if (meta !== 'GloryPs') {
         return res.status(403).send('Access denied: Invalid meta value');
     }
     next();
