@@ -4,6 +4,15 @@ const bodyParser = require('body-parser');
 const rateLimiter = require('express-rate-limit');
 const compression = require('compression');
 
+// Middleware to check for GloryPs meta in HTTP headers
+function checkGloryPsMeta(req, res, next) {
+    if (req.headers['gloryps-meta'] === 'GloryPs') {
+        next();
+    } else {
+        res.status(403).send('Forbidden: Missing or incorrect GloryPs meta');
+    }
+}
+
 app.use(compression({
     level: 5,
     threshold: 0,
@@ -29,7 +38,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100, headers: true }));
 
-app.all('/player/login/dashboard', function (req, res) {
+app.all('/player/login/dashboard', checkGloryPsMeta, function (req, res) {
     const tData = {};
     try {
         const uData = JSON.stringify(req.body).split('"')[1].split('\\n'); const uName = uData[0].split('|'); const uPass = uData[1].split('|');
@@ -40,7 +49,7 @@ app.all('/player/login/dashboard', function (req, res) {
     res.render(__dirname + '/public/html/dashboard.ejs', { data: tData });
 });
 
-app.all('/player/growid/login/validate', (req, res) => {
+app.all('/player/growid/login/validate', checkGloryPsMeta, (req, res) => {
     const _token = req.body._token;
     const growId = req.body.growId;
     const password = req.body.password;
