@@ -6,99 +6,43 @@
     <title>Growtopia - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .form-container {
-            background-color: #2b4d6d;
-            border: 6px solid #87b8cc;
-            border-radius: 8px;
-            padding: 0.75rem;
-            width: 600px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .input-field {
-            background-color: #2b4d6d;
-            border: 3px solid #81d4fa;
-            border-radius: 4px;
-            padding: 0.3rem 0.6rem;
-            color: white;
-            width: 100%;
-            transition: border-color 0.3s ease;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: #00b8ff;
-        }
-
-        .login-button {
-            background-color: #00b8ff;
-            color: white;
-            padding: 0.3rem 0.9rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .login-button:hover {
-            background-color: #06a4dd;
-        }
-
-        .register-link {
-            color: #ff9800;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .register-link:hover {
-            text-decoration: underline;
-        }
-
-        .space-y-4 > * + * {
-            margin-top: 0.5rem;
-        }
-    </style>
 </head>
-<body> 
-    <div class="form-container">
-        <h2 class="text-xl font-semibold text-center text-white mb-2">Log in with your GloryPs Account</h2> 
-        <div id="errorDiv" class="hidden flex flex-col mt-1 text-xs text-red-700 font-bold px-[5px] bg-[#2b4d6d] rounded">
-            <a id="errorMessage"></a>
-        </div>
-        <form 
+<body class="flex flex-col items-center justify-center h-screen bg-[#e0f7fa]">
+    <div class="fixed inset-0 flex items-center justify-center">
+        <div class="relative bg-[#2b4d6d] border-4 border-[#87b8cc] shadow-lg p-6 w-80 rounded-lg">
+            <p class="text-white text-center font-bold text-2xl">Login</p>
+            <div id="errorDiv" class="hidden flex flex-col mt-2 text-xs text-red-700 font-bold px-[5px] bg-[#2b4d6d] rounded">
+                <a id="errorMessage"></a>
+            </div>
+            <form 
             method="post"
             action="/player/growid/login/validate"
             accept-charset="UTF-8"
-            id="loginForm" class="space-y-4"> 
-            <input name="type" value="log" type="hidden" />
-            <input name="_token" value="<%= JSON.stringify(data) %>" type="hidden" />
-            <div>
-                <label for="loginGrowId" class="block text-white text-sm">Your Account GrowID</label>
-                <input type="text" name="growId" id="loginGrowId" class="input-field mt-1" placeholder="Enter your growid">
-            </div>
-            <div>
-                <label for="loginPassword" class="block text-white text-sm">Your Account Password</label>
-                <div class="relative">
-                    <input type="password" name="password" id="loginPassword" class="input-field mt-1" placeholder="Enter your password">
-                    <button type="button" id="toggleLogPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-white focus:outline-none text-sm">
-                        <i class="fas fa-eye"></i>
-                    </button>
+            id="loginForm" class="mt-3">
+                <div class="mb-1">
+                    <input name="type" value="log" type="hidden" />
+                    <input name="_token" value="<%= JSON.stringify(data) %>" type="hidden" />
+                    <label for="loginGrowId" class="block text-white text-xs">GrowID</label>
+                    <div class="flex items-center border-2 border-[#81d4fa] rounded bg-[#2b4d6d] px-1 py-1">
+                        <i class="fas fa-user text-white mr-1 text-xs"></i>
+                        <input type="text" name="growId" id="loginGrowId" class="w-full bg-[#2b4d6d] text-white text-xs placeholder-white focus:outline-none" placeholder="Enter your growid">
+                    </div>
                 </div>
-            </div>
-            <button id="loginButton" class="login-button w-full">Log in</button>
-        </form>
-        <p class="text-center mt-1 text-white text-sm">
-            Don't have an account? <a href="your-registration-page.html" class="register-link">Register!</a> 
-        </p> 
+                <div class="mb-1">
+                    <label for="loginPassword" class="block text-white text-xs">Password</label>
+                    <div class="flex items-center border-2 border-[#81d4fa] rounded bg-[#2b4d6d] px-1 py-1">
+                        <i class="fas fa-lock text-white mr-1 text-xs"></i>
+                        <input type="password" name="password" id="loginPassword" class="w-full bg-[#2b4d6d] text-white text-xs placeholder-white focus:outline-none" placeholder="Enter your password">
+                        <button type="button" id="toggleLogPassword" class="text-white ml-2 focus:outline-none text-xs">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-end items-center">
+                    <button id="loginButton" class="px-2 py-1 rounded bg-[#00b8ff] text-white text-xs hover:bg-[#06a4dd] transition duration-300 ease-in-out transform hover:scale-105">Login</button>
+                </div>
+            </form>
+        </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
