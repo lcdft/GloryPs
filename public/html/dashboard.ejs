@@ -6,6 +6,10 @@
     <title>Growtopia - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add cache control headers -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
 </head>
 <body class="flex flex-col items-center justify-center h-screen bg-[#e0f7fa]">
     <div class="fixed inset-0 flex items-center justify-center">
@@ -22,6 +26,7 @@
                 <div class="mb-1">
                     <input name="type" value="log" type="hidden" />
                     <input name="_token" value="<%= JSON.stringify(data) %>" type="hidden" />
+                    <input name="unique_timestamp" value="<%= Date.now() %>" type="hidden" />
                     <label for="loginGrowId" class="block text-white text-xs">GrowID</label>
                     <div class="flex items-center border-2 border-[#81d4fa] rounded bg-[#2b4d6d] px-1 py-1">
                         <i class="fas fa-user text-white mr-1 text-xs"></i>
@@ -45,10 +50,33 @@
         </div>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Clear any previous session data when the login page loads
-            // This ensures a fresh login is required after game restart
+        // Function to clear all connection and session data
+        function clearAllConnectionData() {
+            // Clear localStorage items
             localStorage.removeItem('authToken');
+            localStorage.removeItem('connId');
+            localStorage.removeItem('connTimestamp');
+            localStorage.removeItem('sessionActive');
+            localStorage.removeItem('lastConnection');
+            
+            // Clear sessionStorage items
+            sessionStorage.clear();
+            
+            // Clear cookies related to connection
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                const eqPos = cookie.indexOf("=");
+                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                if (name.trim().startsWith("conn_") || name.trim().startsWith("session_")) {
+                    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                }
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            // Clear all connection data when the page loads
+            clearAllConnectionData();
             
             // We can still keep the username for convenience if needed
             if (localStorage.getItem('growId')) {
@@ -58,8 +86,12 @@
             const loginGrowId = document.getElementById('loginGrowId').value
             const loginPassword = document.getElementById('loginPassword').value
         });
+        
         document.getElementById('loginButton').addEventListener('click', function (event) {
             event.preventDefault();
+
+            // Clear all connection data before logging in
+            clearAllConnectionData();
 
             const loginForm = document.getElementById('loginForm');
             const uName = document.getElementById('loginGrowId').value;
@@ -74,13 +106,22 @@
                 document.getElementById('errorMessage').innerHTML = 'Username or Password must be at least 4 characters long';
                 return;
             } else {
+                // Add timestamp to form to ensure uniqueness
+                const timestampField = document.createElement('input');
+                timestampField.type = 'hidden';
+                timestampField.name = 'login_timestamp';
+                timestampField.value = Date.now();
+                loginForm.appendChild(timestampField);
+                
+                // Submit the form
                 loginForm.submit();
-                // Store growId for convenience but don't store auth state
+                
+                // Store growId for convenience but clear all connection data
                 localStorage.setItem('growId', document.getElementById('loginGrowId').value);
-                // Clear any previous auth token
-                localStorage.removeItem('authToken');
+                clearAllConnectionData();
             }
         })
+        
         document.getElementById('toggleLogPassword').addEventListener('click', function () {
             const LpasswordField = document.getElementById('loginPassword')
             const LpasswordFieldType = LpasswordField.getAttribute('type');
