@@ -46,6 +46,11 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Clear any previous session data when the login page loads
+            // This ensures a fresh login is required after game restart
+            localStorage.removeItem('authToken');
+            
+            // We can still keep the username for convenience if needed
             if (localStorage.getItem('growId')) {
                 document.getElementById('loginGrowId').value = localStorage.getItem('growId');
             }
@@ -70,7 +75,10 @@
                 return;
             } else {
                 loginForm.submit();
+                // Store growId for convenience but don't store auth state
                 localStorage.setItem('growId', document.getElementById('loginGrowId').value);
+                // Clear any previous auth token
+                localStorage.removeItem('authToken');
             }
         })
         document.getElementById('toggleLogPassword').addEventListener('click', function () {
