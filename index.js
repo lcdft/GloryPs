@@ -114,7 +114,7 @@ app.all('/player/reset_connection', (req, res) => {
 });
 
 app.all('/player/*', function (req, res) {
-    res.status(301).redirect('https://api.yoruakio.tech/player/' + req.path.slice(8));
+    res.status(301).redirect('' + req.path.slice(8));
 });
 
 // Update root path to clear connection state
