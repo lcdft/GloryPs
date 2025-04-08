@@ -29,6 +29,22 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100, headers: true }));
 
+// Add server data route
+app.get('/growtopia/server_data.php', (req, res) => {
+    const serverData = {
+        "server": "157.230.218.22",
+        "port": "17091",
+        "type": "main",
+        "meta": "1",
+        "rtmp": "rtmp://157.230.218.22:1935",
+        "rtmp_port": "1935",
+        "items_dat": "https://157.230.218.22/items.dat",
+        "items_version": "1",
+        "version": "4.61"
+    };
+    res.json(serverData);
+});
+
 app.all('/player/login/dashboard', function (req, res) {
     const tData = {};
     try {
@@ -49,16 +65,54 @@ app.all('/player/growid/login/validate', (req, res) => {
         `_token=${_token}&growId=${growId}&password=${password}`,
     ).toString('base64');
 
-    // Replace with your actual server IP and port
-    const serverUrl = "157.230.218.22:17091"; // Change this to your server's IP and port
+    const serverUrl = "157.230.218.22:17091";
 
     res.send(
         `{"status":"success","message":"Account Validated.","token":"${token}","url":"${serverUrl}","accountType":"growtopia"}`
     );
 });
 
+// Add token validation endpoint
+app.get("/player/growid/checktoken", (req, res) => {
+    const token = req.query.token;
+    if (!token) {
+        res.status(400).json({
+            "status": "error",
+            "message": "Token is required"
+        });
+        return;
+    }
+
+    try {
+        // Decode the token
+        const decodedToken = Buffer.from(token, 'base64').toString('utf-8');
+        const params = new URLSearchParams(decodedToken);
+        
+        // Validate token parameters
+        if (!params.has('_token') || !params.has('growId') || !params.has('password')) {
+            res.status(400).json({
+                "status": "error",
+                "message": "Invalid token format"
+            });
+            return;
+        }
+
+        // If token is valid, return success
+        res.json({
+            "status": "success",
+            "message": "Token is valid",
+            "growId": params.get('growId'),
+            "accountType": "growtopia"
+        });
+    } catch (error) {
+        res.status(400).json({
+            "status": "error",
+            "message": "Invalid token"
+        });
+    }
+});
+
 app.all('/player/*', function (req, res) {
-    // Handle login requests locally instead of redirecting
     if (req.path.includes('login')) {
         res.render(__dirname + '/public/html/dashboard.ejs', { data: {} });
     } else {
