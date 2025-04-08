@@ -34,10 +34,7 @@ app.all('/player/login/dashboard', function (req, res) {
     try {
         const uData = JSON.stringify(req.body).split('"')[1].split('\\n'); const uName = uData[0].split('|'); const uPass = uData[1].split('|');
         for (let i = 0; i < uData.length - 1; i++) { const d = uData[i].split('|'); tData[d[0]] = d[1]; }
-        if (uName[1] && uPass[1]) {
-            tData['session_time'] = Date.now();
-            res.redirect('/player/growid/login/validate');
-        }
+        if (uName[1] && uPass[1]) { res.redirect('/player/growid/login/validate'); }
     } catch (why) { console.log(`Warning: ${why}`); }
 
     res.render(__dirname + '/public/html/dashboard.ejs', { data: tData });
@@ -48,84 +45,29 @@ app.all('/player/growid/login/validate', (req, res) => {
     const growId = req.body.growId;
     const password = req.body.password;
 
-    const uniqueTimestamp = Date.now();
-    const randomConnId = Math.floor(Math.random() * 10000);
-    
-    // Create a unique token with connection parameters
     const token = Buffer.from(
-        `_token=${_token}&growId=${growId}&password=${password}&timestamp=${uniqueTimestamp}&conn_id=${randomConnId}`,
+        `_token=${_token}&growId=${growId}&password=${password}`,
     ).toString('base64');
 
-    // Add connection parameters to force new connection
+    // Replace with your actual server IP and port
+    const serverUrl = "157.230.218.22:17091"; // Change this to your server's IP and port
+
     res.send(
-        `{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia","conn_timestamp":"${uniqueTimestamp}","conn_id":"${randomConnId}"}`,
+        `{"status":"success","message":"Account Validated.","token":"${token}","url":"${serverUrl}","accountType":"growtopia"}`
     );
 });
 
-// Add new endpoint for server connection
-app.all('/player/server/connect', (req, res) => {
-    // Get the token from the request
-    const token = req.body.token || req.query.token;
-    
-    if (!token) {
-        return res.status(401).send({
-            status: "error",
-            message: "No authentication token provided."
-        });
-    }
-    
-    try {
-        // Generate new connection parameters
-        const connTimestamp = Date.now();
-        const connId = Math.floor(Math.random() * 100000);
-        
-        // Send response with connection parameters
-        res.send({
-            status: "success",
-            message: "Connection parameters generated.",
-            server_address: "157.230.218.22", // Change to your actual server address
-            port: 17091, // Change to your actual port number
-            conn_timestamp: connTimestamp,
-            conn_id: connId
-        });
-    } catch (error) {
-        console.error("Error generating connection parameters:", error);
-        res.status(500).send({
-            status: "error",
-            message: "Failed to generate connection parameters."
-        });
-    }
-});
-
-// Add connection reset endpoint for game startup
-app.all('/player/reset_connection', (req, res) => {
-    // Get identification info if available
-    const growId = req.body.growId || req.query.growId || "unknown";
-    
-    console.log(`[${new Date().toLocaleString()}] Connection reset requested for: ${growId}`);
-    
-    // Return success response with timestamp to ensure uniqueness
-    res.send({
-        status: "success",
-        message: "Connection has been reset.",
-        reset_timestamp: Date.now(),
-        requires_login: true
-    });
-});
-
 app.all('/player/*', function (req, res) {
-    res.status(301).redirect('' + req.path.slice(8));
+    // Handle login requests locally instead of redirecting
+    if (req.path.includes('login')) {
+        res.render(__dirname + '/public/html/dashboard.ejs', { data: {} });
+    } else {
+        res.status(404).send('Not Found');
+    }
 });
 
-// Update root path to clear connection state
 app.get('/', function (req, res) {
-    // Set cache-control headers to prevent caching
-    res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.header('Pragma', 'no-cache');
-    res.header('Expires', '0');
-    
-    // Redirect to login page with timestamp to ensure uniqueness
-    res.redirect('/player/login/dashboard?t=' + Date.now());
+    res.send('Hello World!');
 });
 
 app.listen(5000, function () {
