@@ -38,8 +38,9 @@
                         </button>
                     </div>
                 </div>
-                <div class="flex justify-end items-center">
+                <div class="flex justify-between items-center mt-3">
                     <button id="loginButton" class="px-2 py-1 rounded bg-[#00b8ff] text-white text-xs hover:bg-[#06a4dd] transition duration-300 ease-in-out transform hover:scale-105">Login</button>
+                    <button id="registerButton" type="button" class="px-2 py-1 rounded bg-[#00b8ff] text-white text-xs hover:bg-[#06a4dd] transition duration-300 ease-in-out transform hover:scale-105">Register</button>
                 </div>
             </form>
         </div>
@@ -83,6 +84,10 @@
                 LpasswordField.setAttribute('type', 'password');
                 this.innerHTML = '<i class="fas fa-eye"></i>';
             }
+        });
+        document.getElementById('registerButton').addEventListener('click', function () {
+            // Handle the register button click event, e.g., navigate to a registration page or close the login modal
+            window.location.href = '/register'; // Example: navigate to a registration page
         });
     </script>
 </body>
