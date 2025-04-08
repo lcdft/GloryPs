@@ -12,57 +12,88 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(135deg, #1f1c2c, #928dab);
+            background-color: #0d0d0d;
             font-family: 'Arial', sans-serif;
             color: #fff;
         }
         .container {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
             text-align: center;
-            width: 300px;
+            width: 350px;
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before, .container::after {
+            content: '';
+            position: absolute;
+            width: 400%;
+            height: 400%;
+            background: linear-gradient(45deg, #ff6f61, #ff4b2b, #ff6f61, #ff4b2b);
+            top: -100%;
+            left: -100%;
+            z-index: 0;
+            opacity: 0.2;
+            animation: rotate 10s linear infinite;
+        }
+        .container::after {
+            animation-direction: reverse;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0); }
+            100% { transform: rotate(360deg); }
         }
         .container h1 {
             margin-bottom: 20px;
-            font-size: 24px;
+            font-size: 28px;
+            position: relative;
+            z-index: 1;
         }
         .container input[type="text"],
         .container input[type="password"] {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
+            padding: 12px;
+            margin: 15px 0;
             border: none;
-            border-radius: 5px;
+            border-radius: 25px;
             outline: none;
+            background: #333;
+            color: #fff;
+            font-size: 16px;
+            position: relative;
+            z-index: 1;
         }
         .container input[type="submit"] {
             width: 100%;
-            padding: 10px;
-            margin: 20px 0;
+            padding: 12px;
+            margin: 25px 0;
             border: none;
-            border-radius: 5px;
-            background: #ff6f61;
+            border-radius: 25px;
+            background: #ff4b2b;
             color: #fff;
             font-size: 18px;
             cursor: pointer;
             transition: background 0.3s ease;
+            position: relative;
+            z-index: 1;
         }
         .container input[type="submit"]:hover {
-            background: #ff4b2b;
+            background: #ff6f61;
         }
         .container .links {
             margin-top: 20px;
+            position: relative;
+            z-index: 1;
         }
         .container .links a {
-            color: #fff;
+            color: #ff6f61;
             text-decoration: none;
             transition: color 0.3s ease;
         }
         .container .links a:hover {
-            color: #ff6f61;
+            color: #ff4b2b;
         }
     </style>
 </head>
