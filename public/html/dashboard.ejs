@@ -21,6 +21,7 @@
             border: 2px solid rgba(135, 184, 204, 0.3);
             box-shadow: 0 0 20px rgba(0, 184, 255, 0.2);
             transition: all 0.3s ease;
+            width: 500px;
         }
         .login-box:hover {
             box-shadow: 0 0 30px rgba(0, 184, 255, 0.4);
@@ -60,13 +61,13 @@
 </head>
 <body>
     <div class="fixed inset-0 flex items-center justify-center">
-        <div class="login-box p-8 w-96 rounded-xl">
-            <div class="text-center mb-6">
-                <h1 class="title-glow text-3xl font-bold text-white mb-2">Growtopia</h1>
-                <p class="text-gray-300 text-sm">Enter your credentials to continue</p>
+        <div class="login-box p-6 rounded-xl">
+            <div class="text-center mb-4">
+                <h1 class="title-glow text-2xl font-bold text-white mb-1">Growtopia</h1>
+                <p class="text-gray-300 text-xs">Enter your credentials to continue</p>
             </div>
             
-            <div id="errorDiv" class="hidden flex flex-col mb-4 text-xs text-red-400 font-bold px-3 py-2 bg-red-900/30 rounded-lg border border-red-500/30">
+            <div id="errorDiv" class="hidden flex flex-col mb-3 text-xs text-red-400 font-bold px-3 py-2 bg-red-900/30 rounded-lg border border-red-500/30">
                 <span id="errorMessage"></span>
             </div>
 
@@ -74,34 +75,34 @@
                 <input name="type" value="log" type="hidden" />
                 <input name="_token" value="<%= JSON.stringify(data) %>" type="hidden" />
                 
-                <div class="mb-4">
-                    <label for="loginGrowId" class="block text-white text-sm mb-1">GrowID</label>
-                    <div class="input-field flex items-center rounded-lg px-3 py-2">
-                        <i class="fas fa-user text-gray-400 mr-2"></i>
+                <div class="mb-3">
+                    <label for="loginGrowId" class="block text-white text-xs mb-1">GrowID</label>
+                    <div class="input-field flex items-center rounded-lg px-3 py-1.5">
+                        <i class="fas fa-user text-gray-400 mr-2 text-xs"></i>
                         <input type="text" name="growId" id="loginGrowId" 
-                            class="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none"
+                            class="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none text-sm"
                             placeholder="Enter your GrowID">
                     </div>
                 </div>
 
-                <div class="mb-6">
-                    <label for="loginPassword" class="block text-white text-sm mb-1">Password</label>
-                    <div class="input-field flex items-center rounded-lg px-3 py-2">
-                        <i class="fas fa-lock text-gray-400 mr-2"></i>
+                <div class="mb-4">
+                    <label for="loginPassword" class="block text-white text-xs mb-1">Password</label>
+                    <div class="input-field flex items-center rounded-lg px-3 py-1.5">
+                        <i class="fas fa-lock text-gray-400 mr-2 text-xs"></i>
                         <input type="password" name="password" id="loginPassword" 
-                            class="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none"
+                            class="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none text-sm"
                             placeholder="Enter your password">
-                        <button type="button" id="toggleLogPassword" class="text-gray-400 hover:text-white focus:outline-none">
+                        <button type="button" id="toggleLogPassword" class="text-gray-400 hover:text-white focus:outline-none text-xs">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-3">
-                    <button id="loginButton" class="login-btn text-white font-bold py-2 px-4 rounded-lg">
+                <div class="flex gap-2">
+                    <button id="loginButton" class="login-btn text-white font-bold py-1.5 px-4 rounded-lg text-sm flex-1">
                         Login
                     </button>
-                    <button type="button" id="registerButton" class="register-btn text-white font-bold py-2 px-4 rounded-lg">
+                    <button type="button" id="registerButton" class="register-btn text-white font-bold py-1.5 px-4 rounded-lg text-sm flex-1">
                         Register
                     </button>
                 </div>
