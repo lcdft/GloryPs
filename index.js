@@ -67,6 +67,20 @@ app.post('/player/growid/login/validate', (req, res) => {
     });
 });
 
+// ✅ NEW: Skip register and allow connection
+app.post('/player/growid/register/skip', (req, res) => {
+    const tankIDName = req.body.growId || 'Guest';
+    const token = Buffer.from(`_token=skip&growId=${tankIDName}&password=none`).toString('base64');
+
+    res.send({
+        status: 'success',
+        message: 'Account Created.',
+        token: token,
+        url: '',
+        accountType: 'growtopia'
+    });
+});
+
 // ✅ GrowID token check (important for reconnections)
 app.post('/player/growid/checkToken', async (req, res) => {
     const { refreshToken, clientData } = req.body;
