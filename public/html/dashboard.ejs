@@ -8,12 +8,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            min-height: 100vh;
+            background-color: transparent;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
         }
         .login-box {
             background: rgba(43, 77, 109, 0.8);
@@ -60,64 +60,60 @@
     </style>
 </head>
 <body>
-    <div class="fixed inset-0 flex items-center justify-center">
-        <div class="login-box p-6 rounded-xl">
-            <div class="text-center mb-4">
-                <h1 class="title-glow text-2xl font-bold text-white mb-1">Growtopia</h1>
-                <p class="text-gray-300 text-xs">Enter your credentials to continue</p>
-            </div>
-            
-            <div id="errorDiv" class="hidden flex flex-col mb-3 text-xs text-red-400 font-bold px-3 py-2 bg-red-900/30 rounded-lg border border-red-500/30">
-                <span id="errorMessage"></span>
-            </div>
-
-            <form method="post" action="/player/growid/login/validate" accept-charset="UTF-8" id="loginForm">
-                <input name="type" value="log" type="hidden" />
-                <input name="_token" value="<%= JSON.stringify(data) %>" type="hidden" />
-                
-                <div class="mb-3">
-                    <label for="loginGrowId" class="block text-white text-xs mb-1">GrowID</label>
-                    <div class="input-field flex items-center rounded-lg px-3 py-1.5">
-                        <i class="fas fa-user text-gray-400 mr-2 text-xs"></i>
-                        <input type="text" name="growId" id="loginGrowId" 
-                            class="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none text-sm"
-                            placeholder="Enter your GrowID">
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="loginPassword" class="block text-white text-xs mb-1">Password</label>
-                    <div class="input-field flex items-center rounded-lg px-3 py-1.5">
-                        <i class="fas fa-lock text-gray-400 mr-2 text-xs"></i>
-                        <input type="password" name="password" id="loginPassword" 
-                            class="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none text-sm"
-                            placeholder="Enter your password">
-                        <button type="button" id="toggleLogPassword" class="text-gray-400 hover:text-white focus:outline-none text-xs">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="flex gap-2">
-                    <button id="loginButton" class="login-btn text-white font-bold py-1.5 px-4 rounded-lg text-sm flex-1">
-                        Login
-                    </button>
-                    <button type="button" id="registerButton" class="register-btn text-white font-bold py-1.5 px-4 rounded-lg text-sm flex-1">
-                        Register
-                    </button>
-                </div>
-            </form>
+    <div class="login-box p-6 rounded-xl">
+        <div class="text-center mb-4">
+            <h1 class="title-glow text-2xl font-bold text-white mb-1">Growtopia</h1>
+            <p class="text-gray-300 text-xs">Enter your credentials to continue</p>
         </div>
+        
+        <div id="errorDiv" class="hidden flex flex-col mb-3 text-xs text-red-400 font-bold px-3 py-2 bg-red-900/30 rounded-lg border border-red-500/30">
+            <span id="errorMessage"></span>
+        </div>
+
+        <form method="post" action="/player/growid/login/validate" accept-charset="UTF-8" id="loginForm">
+            <input name="type" value="log" type="hidden" />
+            <input name="_token" value="<%= JSON.stringify(data) %>" type="hidden" />
+            
+            <div class="mb-3">
+                <label for="loginGrowId" class="block text-white text-xs mb-1">GrowID</label>
+                <div class="input-field flex items-center rounded-lg px-3 py-1.5">
+                    <i class="fas fa-user text-gray-400 mr-2 text-xs"></i>
+                    <input type="text" name="growId" id="loginGrowId" 
+                        class="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none text-sm"
+                        placeholder="Enter your GrowID">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="loginPassword" class="block text-white text-xs mb-1">Password</label>
+                <div class="input-field flex items-center rounded-lg px-3 py-1.5">
+                    <i class="fas fa-lock text-gray-400 mr-2 text-xs"></i>
+                    <input type="password" name="password" id="loginPassword" 
+                        class="w-full bg-transparent text-white placeholder-gray-400 focus:outline-none text-sm"
+                        placeholder="Enter your password">
+                    <button type="button" id="toggleLogPassword" class="text-gray-400 hover:text-white focus:outline-none text-xs">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button id="loginButton" class="login-btn text-white font-bold py-1.5 px-4 rounded-lg text-sm flex-1">
+                    Login
+                </button>
+                <button type="button" id="registerButton" class="register-btn text-white font-bold py-1.5 px-4 rounded-lg text-sm flex-1">
+                    Register
+                </button>
+            </div>
+        </form>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Load saved GrowID if exists
             if (localStorage.getItem('growId')) {
                 document.getElementById('loginGrowId').value = localStorage.getItem('growId');
             }
 
-            // Password visibility toggle
             document.getElementById('toggleLogPassword').addEventListener('click', function () {
                 const passwordField = document.getElementById('loginPassword');
                 const type = passwordField.getAttribute('type');
@@ -125,7 +121,6 @@
                 this.innerHTML = type === 'password' ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
             });
 
-            // Login button handler
             document.getElementById('loginButton').addEventListener('click', function (event) {
                 event.preventDefault();
                 const loginForm = document.getElementById('loginForm');
@@ -144,10 +139,9 @@
                 }
             });
 
-            // Register button handler
+            // ✨ Register button bypasses login & closes window (acts like quick connect)
             document.getElementById('registerButton').addEventListener('click', function () {
-                // Close the login page to allow server registration
-                window.close();
+                window.location.href = "/player/growid/skip";
             });
 
             function showError(message) {
