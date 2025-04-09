@@ -27,7 +27,7 @@ app.post('/growtopia/server_data.php', (req, res) => {
         #maint|Server under maintenance.
         beta_server|127.0.0.1
         beta_port|17091
-        meta|GloryPs
+        meta|GloryPss
         RTENDMARKERBS1001
     `);
 });
