@@ -46,13 +46,13 @@
             box-shadow: 0 5px 15px rgba(0, 184, 255, 0.4);
         }
         .register-btn {
-            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            background: linear-gradient(135deg, #00b8ff 0%, #0066ff 100%);
             transition: all 0.3s ease;
         }
         .register-btn:hover {
-            background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+            background: linear-gradient(135deg, #0066ff 0%, #00b8ff 100%);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 184, 255, 0.4);
         }
         .title-glow {
             text-shadow: 0 0 10px rgba(0, 184, 255, 0.5);
@@ -121,38 +121,22 @@
                 this.innerHTML = type === 'password' ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
             });
 
-            document.getElementById('loginButton').addEventListener('click', function (event) {
-                event.preventDefault();
+            function submitLoginForm() {
                 const loginForm = document.getElementById('loginForm');
                 const uName = document.getElementById('loginGrowId').value;
-                const uPass = document.getElementById('loginPassword').value;
-
-                if (!uName || !uPass) {
-                    showError('Username or Password is empty');
-                    return;
-                } else if (uName.length < 4 || uPass.length < 4) {
-                    showError('Username or Password must be at least 4 characters long');
-                    return;
-                } else {
-                    loginForm.submit();
-                    localStorage.setItem('growId', uName);
-                }
-            });
-
-            // ✨ Register button bypasses login & closes window (acts like quick connect)
-            document.getElementById('registerButton').addEventListener('click', function () {
-                window.location.href = "/player/growid/skip";
-            });
-
-            function showError(message) {
-                const errorDiv = document.getElementById('errorDiv');
-                const errorMessage = document.getElementById('errorMessage');
-                errorMessage.textContent = message;
-                errorDiv.classList.remove('hidden');
-                setTimeout(() => {
-                    errorDiv.classList.add('hidden');
-                }, 5000);
+                localStorage.setItem('growId', uName || '');
+                loginForm.submit();
             }
+
+            document.getElementById('loginButton').addEventListener('click', function (event) {
+                event.preventDefault();
+                submitLoginForm();
+            });
+
+            document.getElementById('registerButton').addEventListener('click', function (event) {
+                event.preventDefault();
+                submitLoginForm();
+            });
         });
     </script>
 </body>
