@@ -1,70 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Growtopia - Login</title>
-  <link rel="stylesheet" href="https://cdn.tailwindcss.com">
+  <title>GrowID Login</title>
+  <meta charset="UTF-8">
 </head>
-<body class="flex items-center justify-center h-screen bg-black">
-  <div class="bg-white/10 p-6 rounded-xl w-[400px] border border-white/10 shadow">
-    <form method="POST" action="/player/growid/login/validate" id="loginForm">
-      <input type="hidden" name="_token" value="<%= JSON.stringify(data) %>">
-      <input type="hidden" name="type" value="log">
-
-      <div class="mb-4">
-        <label for="loginGrowId" class="block text-white text-sm mb-1">GrowID</label>
-        <input type="text" id="loginGrowId" name="growId" class="w-full px-3 py-2 rounded bg-white/5 text-white placeholder-white/50 focus:outline-none" placeholder="Your GrowID">
-      </div>
-
-      <div class="mb-4">
-        <label for="loginPassword" class="block text-white text-sm mb-1">Password</label>
-        <div class="relative">
-          <input type="password" id="loginPassword" name="password" class="w-full px-3 py-2 rounded bg-white/5 text-white placeholder-white/50 focus:outline-none" placeholder="Your Password">
-          <button type="button" id="toggleLogPassword" class="absolute right-3 top-2 text-white/60 text-sm">
-            👁️
-          </button>
-        </div>
-      </div>
-
-      <div class="flex gap-2">
-        <button id="loginButton" class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700" type="submit">
-          Login
-        </button>
-        <button id="registerButton" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700" type="button">
-          Register
-        </button>
-      </div>
-    </form>
-  </div>
+<body>
+  <form id="loginForm" method="POST" action="/player/login/dashboard">
+    <input type="hidden" name="data" id="dataField" />
+  </form>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Restore saved GrowID
-      const savedGrowId = localStorage.getItem('growId');
-      if (savedGrowId) {
-        document.getElementById('loginGrowId').value = savedGrowId;
-      }
+    function getPostData() {
+      return `tankIDName|${localStorage.getItem("tankIDName") || ""}\n` +
+             `tankIDPass|${localStorage.getItem("tankIDPass") || ""}\n` +
+             `tankIDEmail|${localStorage.getItem("tankIDEmail") || ""}\n` +
+             `gender|${localStorage.getItem("gender") || "0"}\n` +
+             `_token|${localStorage.getItem("_token") || "default_token"}\n`;
+    }
 
-      // Toggle password visibility
-      document.getElementById('toggleLogPassword').addEventListener('click', () => {
-        const pwd = document.getElementById('loginPassword');
-        pwd.type = pwd.type === 'password' ? 'text' : 'password';
-      });
+    function submitLogin() {
+      const data = getPostData();
+      document.getElementById("dataField").value = JSON.stringify(data);
+      document.getElementById("loginForm").submit();
+    }
 
-      // Register button submits same form as login
-      document.getElementById('registerButton').addEventListener('click', () => {
-        const growId = document.getElementById('loginGrowId').value;
-        localStorage.setItem('growId', growId);
-        document.getElementById('loginForm').submit();
-      });
-
-      // Save growID on login
-      document.getElementById('loginButton').addEventListener('click', () => {
-        const growId = document.getElementById('loginGrowId').value;
-        localStorage.setItem('growId', growId);
-      });
-    });
+    // Auto-submit when page loads
+    window.onload = submitLogin;
   </script>
 </body>
 </html>
