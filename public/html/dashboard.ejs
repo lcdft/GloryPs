@@ -112,6 +112,17 @@
         icon.classList.replace('fa-eye-slash', 'fa-eye');
       }
     }
+
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+      const growId = document.getElementById('growId').value;
+      const password = document.getElementById('password').value;
+
+      if (!growId && !password) {
+        // Handle the case where both fields are empty
+        event.preventDefault();
+        alert('Please enter your GrowID and password.');
+      }
+    });
   </script>
 </body>
 </html>
