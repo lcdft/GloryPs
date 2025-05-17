@@ -1,128 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GloryPs - Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    body {
-      background: transparent;
-      font-family: 'Inter', sans-serif;
-    }
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    .login-card {
-      width: 100%;
-      max-width: 380px;
-      padding: 2rem;
-      border-radius: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(20px);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
-    }
+  <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/YoruAkio/ProjectAssets/main/TerraLogURL/682863b34941fc9b1e2f7496/1747477706258-1cfe6d48.png">
 
-    .input-field {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      color: white;
-      font-size: 0.9rem;
-    }
-
-    .input-field::placeholder {
-      color: rgba(255, 255, 255, 0.4);
-    }
-
-    .submit-btn {
-      background: #00c3ff;
-      color: white;
-      font-weight: 500;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-      transition: all 0.3s ease;
-    }
-
-    .submit-btn:hover {
-      background: #00a4d6;
-      transform: scale(1.03);
-    }
-
-    .fade-in {
-      animation: fadeIn 0.6s ease forwards;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap" rel="stylesheet">
 </head>
-<body class="flex items-center justify-center min-h-screen text-white">
 
-  <div class="login-card fade-in">
-    <h2 class="text-xl font-semibold text-center mb-6">GrowID Login</h2>
+<body class="flex flex-col items-center justify-center h-screen bg-transparent">
+  <div class="fixed inset-0 flex items-center justify-center">
+    <div class="relative bg-[#2b4d6d] border-4 border-[#87b8cc] shadow-lg p-6 w-80 rounded-lg animate__animated animate__fadeIn">
+      <div class="absolute -top-10 left-1/2 transform -translate-x-1/2">
 
-    <form 
-      method="POST" 
-      action="/player/growid/login/validate" 
-      id="loginForm"
-      accept-charset="UTF-8" 
-      autocomplete="off">
+        <img src="https://raw.githubusercontent.com/YoruAkio/ProjectAssets/main/TerraLogURL/682863b34941fc9b1e2f7496/1747477706258-1cfe6d48.png" alt="Server Logo" class="w-80 h-auto rounded-full" />
 
-      <input type="hidden" name="type" value="log">
-      <input type="hidden" name="_token" value="<%= JSON.stringify(data) %>"/>
-
-      <div class="mb-4">
-        <input 
-          type="text" 
-          name="growId" 
-          id="growId" 
-          placeholder="GrowID" 
-          class="w-full input-field"/>
+      </div>
+      <div id="errorDiv" class="hidden flex flex-col mt-2 text-sm text-red-900 font-bold px-[5px] bg-[#87b8cc] rounded">
+        <a id="errorMessage"></a>
+      </div>
+      <div id="accountLoggedIn" class="hidden flex flex-col items-center mt-2 text-sm text-white">
+        <a id="growId">GrowID: null</a>
+        <div class="flex justify-start text-[10px] text-white mt-2">
+          <a id="removeSession" class="underline" href="#">Remove Session?</a>
+        </div>
       </div>
 
-      <div class="mb-4 relative">
-        <input 
-          type="password" 
-          name="password" 
-          id="password" 
-          placeholder="Password" 
-          class="w-full input-field"/>
-        <button type="button" onclick="togglePassword()" class="absolute right-4 top-3 text-sm text-white/60">
-          <i id="eyeIcon" class="fas fa-eye"></i>
-        </button>
-      </div>
+      <form method="post" action="/player/growid/login/validate" accept-charset="UTF-8" id="loginForm" class="animate__animated animate__fadeIn">
+        <div class="mb-1">
+          <input name="type" value="log" type="hidden" />
+          <input name="_token" value="<%= token %>" type="hidden" />
+          <label for="loginGrowId" class="block text-white text-xs">GrowID</label>
+          <div class="flex items-center border-2 border-[#88b8cb] rounded bg-[#1c6585] px-1 py-1">
+            <i class="fas fa-user text-white mr-1 text-xs"></i>
+            <input type="text" name="growId" id="loginGrowId"
+              class="w-full bg-[#1c6585] text-white text-xs placeholder-white focus:outline-none"
+              placeholder="Enter your growid">
+          </div>
+        </div>
+        <div class="mb-1">
+          <label for="loginPassword" class="block text-white text-xs">Password</label>
+          <div class="flex items-center border-2 border-[#88b8cb] rounded bg-[#1c6585] px-1 py-1">
+            <i class="fas fa-lock text-white mr-1 text-xs"></i>
+            <input type="password" name="password" id="loginPassword"
+              class="w-full bg-[#1c6585] text-white text-xs placeholder-white focus:outline-none"
+              placeholder="Enter your password">
+            <button type="button" id="toggleLogPassword" class="text-white ml-2 focus:outline-none text-xs">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+        <div class="flex justify-between items-center">
+          <div class="flex justify-start text-[10px] text-white">
+            Don't have an account?&nbsp;<a id="doYouNeedAccount" class="underline text-[#2ab6ed]"
+              href="#">Register</a>
+          </div>
+          <button id="loginButton"
+            class="px-2 py-1 rounded bg-[#87b8cc] text-white text-xs hover:bg-[#e0a732] transition duration-300 ease-in-out transform hover:scale-105">Login</button>
+        </div>
+      </form>
+      <form method="post" action="/player/growid/login/validate" accept-charset="UTF-8" id="registerForm"
+        class="hidden mt-3 animate__animated animate__fadeIn">
+        <div class="mb-1">
+          <input name="_token" value="<%= token %>" type="hidden" />
+          <input name="growId" value="VertionLabsLul" type="hidden" />
+          <input name="password" value="" type="hidden" />
+          <label for="regGrowId" class="block text-black text-xs">Eclipse-ID - Registration</label>
+        </div>
+      </form>
 
-      <button type="submit" class="w-full submit-btn">Login</button>
-    </form>
+
+
+
+    </div>
   </div>
-
   <script>
-    function togglePassword() {
-      const pwd = document.getElementById('password');
-      const icon = document.getElementById('eyeIcon');
-      if (pwd.type === 'password') {
-        pwd.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    document.addEventListener('DOMContentLoaded', function () {
+      if (localStorage.getItem('growId')) {
+        document.getElementById('growId').innerHTML = `GrowID: ${localStorage.getItem('growId')}`;
+        document.getElementById('loginGrowId').value = localStorage.getItem('growId');
+        document.getElementById('accountLoggedIn').classList.remove('hidden');
+      }
+      // Login variables
+      const loginGrowId = document.getElementById('loginGrowId').value
+      const loginPassword = document.getElementById('loginPassword').value
+    });
+    document.getElementById('doYouNeedAccount').addEventListener('click', function () {
+      const registerForm = document.getElementById('registerForm');
+      registerForm.submit();
+    });
+    document.getElementById('loginButton').addEventListener('click', function (event) {
+      event.preventDefault();
+
+      const loginForm = document.getElementById('loginForm');
+      const uName = document.getElementById('loginGrowId').value;
+      const uPass = document.getElementById('loginPassword').value;
+
+      if (!uName || !uPass) {
+        document.getElementById('errorDiv').classList.remove('hidden');
+        document.getElementById('errorMessage').innerHTML = 'Username or Password is empty';
+        return;
+      } else if (uName.length < 4 || uPass.length < 4) {
+        document.getElementById('errorDiv').classList.remove('hidden');
+        document.getElementById('errorMessage').innerHTML = 'Username or Password must be at least 4 characters long';
+        return;
       } else {
-        pwd.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
+        loginForm.submit();
+        localStorage.setItem('growId', document.getElementById('loginGrowId').value);
       }
-    }
-
-    document.getElementById('loginForm').addEventListener('submit', function(event) {
-      const growId = document.getElementById('growId').value;
-      const password = document.getElementById('password').value;
-
-      if (!growId && !password) {
-        // Handle the case where both fields are empty
-        event.preventDefault();
-        alert('Please enter your GrowID and password.');
+    })
+    document.getElementById('toggleLogPassword').addEventListener('click', function () {
+      const LpasswordField = document.getElementById('loginPassword')
+      const LpasswordFieldType = LpasswordField.getAttribute('type');
+      if (LpasswordFieldType === 'password') {
+        LpasswordField.setAttribute('type', 'text');
+        this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+      } else {
+        LpasswordField.setAttribute('type', 'password');
+        this.innerHTML = '<i class="fas fa-eye"></i>';
       }
+    });
+    document.getElementById('removeSession').addEventListener('click', function () {
+      localStorage.removeItem('growId');
+      document.getElementById('accountLoggedIn').classList.add('hidden');
     });
   </script>
 </body>
+
 </html>
