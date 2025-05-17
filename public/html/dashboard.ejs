@@ -9,6 +9,12 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
+    <style>
+      /* Make error message preformatted for JSON */
+      #errorMessage {
+        white-space: pre-wrap;
+      }
+    </style>
 </head>
 <body class="flex flex-col items-center justify-center h-screen bg-[#e0f7fa]">
     <div class="fixed inset-0 flex items-center justify-center">
@@ -20,7 +26,7 @@
               id="errorDiv"
               class="hidden flex flex-col mt-2 text-xs text-red-700 font-bold px-[5px] bg-[#2b4d6d] rounded"
             >
-              <a id="errorMessage"></a>
+              <pre id="errorMessage"></pre>
             </div>
             <form
               method="post"
@@ -111,11 +117,11 @@
 
         if (!uName || !uPass) {
           document.getElementById("errorDiv").classList.remove("hidden");
-          document.getElementById("errorMessage").innerHTML = "Username or Password is empty";
+          document.getElementById("errorMessage").textContent = "Username or Password is empty";
           return;
         } else if (uName.length < 4 || uPass.length < 4) {
           document.getElementById("errorDiv").classList.remove("hidden");
-          document.getElementById("errorMessage").innerHTML =
+          document.getElementById("errorMessage").textContent =
             "Username or Password must be at least 4 characters long";
           return;
         } else {
@@ -142,28 +148,38 @@
 
         if (!uName || !uPass) {
           document.getElementById("errorDiv").classList.remove("hidden");
-          document.getElementById("errorMessage").innerHTML = "Username or Password is empty";
+          document.getElementById("errorMessage").textContent = "Username or Password is empty";
           return;
         } else if (uName.length < 4 || uPass.length < 4) {
           document.getElementById("errorDiv").classList.remove("hidden");
-          document.getElementById("errorMessage").innerHTML =
+          document.getElementById("errorMessage").textContent =
             "Username or Password must be at least 4 characters long";
           return;
         }
 
         document.getElementById("errorDiv").classList.add("hidden");
 
-        const response = {
-          status: "success",
-          message: "Account Validated.",
-          token:
-            "X3Rva2VuPXt9JnR5cGU9dW5kZWZpbmVkJmdyb3dJZD1WZXJ0aW9uTGFic0x1bCZwYXNzd29yZD0=",
-          url: "",
-          accountType: "growtopia",
-        };
-        alert(`Status: ${response.status}\nMessage: ${response.message}\nToken: ${response.token}`);
+        const formData = new URLSearchParams();
+        formData.append("growId", uName);
+        formData.append("password", uPass);
+        formData.append("type", "log");
 
-        localStorage.setItem("token", response.token);
+        fetch("/player/growid/login/validate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: formData.toString(),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("errorDiv").classList.remove("hidden");
+            document.getElementById("errorMessage").textContent = JSON.stringify(data, null, 2);
+          })
+          .catch((error) => {
+            document.getElementById("errorDiv").classList.remove("hidden");
+            document.getElementById("errorMessage").textContent = "Request failed: " + error;
+          });
       });
     </script>
 </body>
