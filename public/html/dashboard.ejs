@@ -1,186 +1,205 @@
+
+
+
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background-color: rgba(0,0,0,0.0); width:100%; height: 100%;">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Growtopia - Dashboard</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growtopia Player Support</title>
+    <link rel="icon" type="image/png" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" sizes="16x16">
+    <link rel="shortcut icon" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" type="image/x-icon">
+    <link media="all" rel="stylesheet" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/css/shop-custom.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-      /* Make error message preformatted for JSON */
-      #errorMessage {
-        white-space: pre-wrap;
-      }
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: rgba(0, 0, 0, 0);
+        }
+        .login-container {
+            background-color: #2b4d6d;
+            border: 4px solid #87b8cc;
+            border-radius: 12px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px 40px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 310px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .login-container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 50px rgba(0, 0, 0, 0.2);
+        }
+        .login-container p {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .input-group {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            border: 2px solid #81d4fa;
+            background-color: #2b4d6d;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            background-color: #2b4d6d;
+            color: white;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+        .input-group i {
+            padding: 0 10px;
+            color: white;
+        }
+        .btn-login {
+            background-color: #00b8ff;
+            color: white;
+            padding: 7px 10px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        .btn-login:hover {
+            background-color: #06a4dd;
+            transform: scale(1.1);
+        }
+        .btn-register {
+            background-color: #ff6620;
+            color: white;
+            padding: 6px 10px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        .btn-register:hover {
+            background-color: #ff6620;
+            transform: scale(1.1);
+        }
+        .error-message {
+            color: #ff4d4d;
+            font-size: 14px;
+            display: none;
+        }
+        .error-message.active {
+            display: block;
+        }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center h-screen bg-[#e0f7fa]">
+<body>
     <div class="fixed inset-0 flex items-center justify-center">
-        <div
-          class="relative bg-[#2b4d6d] border-4 border-[#87b8cc] shadow-lg p-6 w-80 rounded-lg"
-        >
-            <p class="text-white text-center font-bold text-2xl">Login</p>
-            <div
-              id="errorDiv"
-              class="hidden flex flex-col mt-2 text-xs text-red-700 font-bold px-[5px] bg-[#2b4d6d] rounded"
-            >
-              <pre id="errorMessage"></pre>
+        <div class="login-container">
+            <div>
+                <p style="display: inline-flex; align-items: center; justify-content: center;">
+                <img src="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" 
+                 alt="Growtopia Icon" 
+                 style="width: 32px; height: 32px; vertical-align: middle; margin-right: 8px;">
+            Login to Growtopia
+        </p>
+        </div>
+            <div id="errorDiv" class="hidden flex flex-col mt-2 text-xs text-red-700 font-bold px-[5px] bg-[#2b4d6d] rounded">
+                <a id="errorMessage"></a>
             </div>
-            <form
-              method="post"
-              action="/player/growid/login/validate"
-              accept-charset="UTF-8"
-              id="loginForm"
-              class="mt-3"
-            >
+            <form 
+            method="post"
+            action="/player/growid/login/validate"
+            accept-charset="UTF-8"
+            id="loginForm" class="mt-3">
                 <div class="mb-1">
                     <input name="type" value="log" type="hidden" />
-                    <input
-                      name="_token"
-                      value="<%= JSON.stringify(data) %>"
-                      type="hidden"
-                    />
-                    <label for="loginGrowId" class="block text-white text-xs"
-                      >GrowID</label
-                    >
-                    <div
-                      class="flex items-center border-2 border-[#81d4fa] rounded bg-[#2b4d6d] px-1 py-1"
-                    >
+                    <input name="_token" value="{}" type="hidden" />
+                    <label for="loginGrowId" class="block text-white text-xs"></label>
+                    <div class="input-group">
                         <i class="fas fa-user text-white mr-1 text-xs"></i>
-                        <input
-                          type="text"
-                          name="growId"
-                          id="loginGrowId"
-                          class="w-full bg-[#2b4d6d] text-white text-xs placeholder-white focus:outline-none"
-                          placeholder="Enter your growid"
-                        />
+                        <input type="text" name="growId" id="loginGrowId" placeholder="Your GrowID">
                     </div>
                 </div>
                 <div class="mb-1">
-                    <label for="loginPassword" class="block text-white text-xs"
-                      >Password</label
-                    >
-                    <div
-                      class="flex items-center border-2 border-[#81d4fa] rounded bg-[#2b4d6d] px-1 py-1"
-                    >
+                    <label for="loginPassword" class="block text-white text-xs"></label>
+                    <div class="input-group">
                         <i class="fas fa-lock text-white mr-1 text-xs"></i>
-                        <input
-                          type="password"
-                          name="password"
-                          id="loginPassword"
-                          class="w-full bg-[#2b4d6d] text-white text-xs placeholder-white focus:outline-none"
-                          placeholder="Enter your password"
-                        />
-                        <button
-                          type="button"
-                          id="toggleLogPassword"
-                          class="text-white ml-2 focus:outline-none text-xs"
-                        >
+                        <input type="password" name="password" id="loginPassword" placeholder="Your Password">
+                        <button type="button" id="toggleLogPassword" class="text-white ml-2 focus:outline-none text-xs">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
-                <div class="flex justify-between items-center">
-                    <button
-                      id="loginButton"
-                      class="px-2 py-1 rounded bg-[#00b8ff] text-white text-xs hover:bg-[#06a4dd] transition duration-300 ease-in-out transform hover:scale-105"
-                    >
-                      Login
-                    </button>
-                    <button
-                      type="button"
-                      id="registerButton"
-                      class="px-2 py-1 rounded bg-green-600 text-white text-xs hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-105"
-                    >
-                      Register
-                    </button>
+                <div class="justify-center items-center">
+                    <button id="doYouNeedAccount" class="btn-register">Don't have an account? Register</button>
+                    <button id="loginButton" class="btn-login">Login</button>
+                </div>
+            </form>
+            <form method="post" action="/player/growid/login/validate" accept-charset="UTF-8" id="registerForm"
+                class="hidden mt-3 animate__animated animate__fadeIn">
+                <div class="mb-1">
+                    <input name="type" value="reg" type="hidden" />
+                    <input name="_token" value="{}" type="hidden" />
+                    <input name="growId" value="" type="hidden" />
+                    <input name="password" value="" type="hidden" />
                 </div>
             </form>
         </div>
     </div>
-
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        if (localStorage.getItem("growId")) {
-          document.getElementById("loginGrowId").value = localStorage.getItem("growId");
-        }
-      });
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     const loginGrowId = document.getElementById('loginGrowId').value
+        //     const loginPassword = document.getElementById('loginPassword').value
+        // });
+        
+        document.getElementById('doYouNeedAccount').addEventListener('click', function () {
+            const registerForm = document.getElementById('registerForm');
+            registerForm.submit();
+        });
+        document.getElementById('loginButton').addEventListener('click', function (event) {
+            event.preventDefault();
 
-      document.getElementById("loginButton").addEventListener("click", function (event) {
-        event.preventDefault();
+            const loginForm = document.getElementById('loginForm');
+            const uName = document.getElementById('loginGrowId').value;
+            const uPass = document.getElementById('loginPassword').value;
 
-        const loginForm = document.getElementById("loginForm");
-        const uName = document.getElementById("loginGrowId").value;
-        const uPass = document.getElementById("loginPassword").value;
-
-        if (!uName || !uPass) {
-          document.getElementById("errorDiv").classList.remove("hidden");
-          document.getElementById("errorMessage").textContent = "Username or Password is empty";
-          return;
-        } else if (uName.length < 4 || uPass.length < 4) {
-          document.getElementById("errorDiv").classList.remove("hidden");
-          document.getElementById("errorMessage").textContent =
-            "Username or Password must be at least 4 characters long";
-          return;
-        } else {
-          loginForm.submit();
-          localStorage.setItem("growId", document.getElementById("loginGrowId").value);
-        }
-      });
-
-      document.getElementById("toggleLogPassword").addEventListener("click", function () {
-        const LpasswordField = document.getElementById("loginPassword");
-        const LpasswordFieldType = LpasswordField.getAttribute("type");
-        if (LpasswordFieldType === "password") {
-          LpasswordField.setAttribute("type", "text");
-          this.innerHTML = '<i class="fas fa-eye-slash"></i>';
-        } else {
-          LpasswordField.setAttribute("type", "password");
-          this.innerHTML = '<i class="fas fa-eye"></i>';
-        }
-      });
-
-      document.getElementById("registerButton").addEventListener("click", function () {
-        const uName = document.getElementById("loginGrowId").value;
-        const uPass = document.getElementById("loginPassword").value;
-
-        if (!uName || !uPass) {
-          document.getElementById("errorDiv").classList.remove("hidden");
-          document.getElementById("errorMessage").textContent = "Username or Password is empty";
-          return;
-        } else if (uName.length < 4 || uPass.length < 4) {
-          document.getElementById("errorDiv").classList.remove("hidden");
-          document.getElementById("errorMessage").textContent =
-            "Username or Password must be at least 4 characters long";
-          return;
-        }
-
-        document.getElementById("errorDiv").classList.add("hidden");
-
-        const formData = new URLSearchParams();
-        formData.append("growId", uName);
-        formData.append("password", uPass);
-        formData.append("type", "log");
-
-        fetch("/player/growid/login/validate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: formData.toString(),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            document.getElementById("errorDiv").classList.remove("hidden");
-            document.getElementById("errorMessage").textContent = JSON.stringify(data, null, 2);
-          })
-          .catch((error) => {
-            document.getElementById("errorDiv").classList.remove("hidden");
-            document.getElementById("errorMessage").textContent = "Request failed: " + error;
-          });
-      });
+            if (!uName || !uPass) {
+                document.getElementById('errorDiv').classList.remove('hidden');
+                document.getElementById('errorMessage').innerHTML = 'Username or Password is empty';
+                return;
+            } else if (uName.length < 2 || uPass.length < 2) {
+                document.getElementById('errorDiv').classList.remove('hidden');
+                document.getElementById('errorMessage').innerHTML = 'Username or Password must be at least 2 characters long';
+                return;
+            } else {
+                loginForm.submit();
+                localStorage.setItem('growId', document.getElementById('loginGrowId').value);
+            }
+        });
+        document.getElementById('toggleLogPassword').addEventListener('click', function () {
+            const LpasswordField = document.getElementById('loginPassword')
+            const LpasswordFieldType = LpasswordField.getAttribute('type');
+            if (LpasswordFieldType === 'password') {
+                LpasswordField.setAttribute('type', 'text');
+                this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                LpasswordField.setAttribute('type', 'password');
+                this.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        });
     </script>
 </body>
 </html>
