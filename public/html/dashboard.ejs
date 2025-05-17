@@ -83,7 +83,6 @@
                     >
                       Login
                     </button>
-                    <!-- Register button added here -->
                     <button
                       type="button"
                       id="registerButton"
@@ -137,8 +136,23 @@
         }
       });
 
-      // Register button handler simulating the response
       document.getElementById("registerButton").addEventListener("click", function () {
+        const uName = document.getElementById("loginGrowId").value;
+        const uPass = document.getElementById("loginPassword").value;
+
+        if (!uName || !uPass) {
+          document.getElementById("errorDiv").classList.remove("hidden");
+          document.getElementById("errorMessage").innerHTML = "Username or Password is empty";
+          return;
+        } else if (uName.length < 4 || uPass.length < 4) {
+          document.getElementById("errorDiv").classList.remove("hidden");
+          document.getElementById("errorMessage").innerHTML =
+            "Username or Password must be at least 4 characters long";
+          return;
+        }
+
+        document.getElementById("errorDiv").classList.add("hidden");
+
         const response = {
           status: "success",
           message: "Account Validated.",
@@ -148,7 +162,8 @@
           accountType: "growtopia",
         };
         alert(`Status: ${response.status}\nMessage: ${response.message}\nToken: ${response.token}`);
-        // You can also do something more here, like storing token, redirect, etc.
+
+        localStorage.setItem("token", response.token);
       });
     </script>
 </body>
