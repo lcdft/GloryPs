@@ -16,7 +16,7 @@ app.use(compression({
     }
 }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.on('finish', () => {
@@ -26,8 +26,8 @@ app.use(function (req, res, next) {
 });
 app.use(express.json());
 app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 min cd
-    max: 100, // 100 req / cd
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: 'Too many requests from this IP, please try again after an hour',
 }));
 app.set('trust proxy', 1);
@@ -60,27 +60,17 @@ app.all('/player/growid/login/validate', (req, res) => {
     const { type, growId, password, email = '', gender = 0, _token } = req.body;
 
     console.log(`Type: ${type} | GrowID: ${growId} | Password: ${password} | Email: ${email} | Gender: ${gender}`);
-    
+
     if (!_token || !type || !growId || !password) {
         console.log('Invalid request: missing _token, type, growId, or password');
-        return res.send({
-            status: "error",
-            message: "Invalid request.",
-            token: "",
-            url: "",
-            accountType: ""
-        });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(`{"status":"error","message":"Invalid request.","token":"","url":"","accountType":""}`);
     }
 
     if (type === "reg" && !isValidEmail(email)) {
         console.log('Invalid email format');
-        return res.send({
-            status: "error",
-            message: "Invalid email.",
-            token: "",
-            url: "",
-            accountType: ""
-        });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(`{"status":"error","message":"Invalid email.","token":"","url":"","accountType":""}`);
     }
 
     const tokenData = type === 'reg'
@@ -89,13 +79,8 @@ app.all('/player/growid/login/validate', (req, res) => {
 
     const token = Buffer.from(tokenData).toString('base64');
 
-    res.send({
-        status: "success",
-        message: "Account Validated.",
-        token: token,
-        url: "",
-        accountType: "growtopia"
-    });
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia"}`);
 });
 
 app.all('/player/growid/checkToken', (req, res) => {
@@ -103,22 +88,20 @@ app.all('/player/growid/checkToken', (req, res) => {
         const { refreshToken, clientData } = req.body;
 
         if (!refreshToken || !clientData) {
-            return res.status(400).send({ status: "error", message: "Missing refreshToken or clientData" });
+            res.setHeader('Content-Type', 'text/html');
+            return res.status(400).send(`{"status":"error","message":"Missing refreshToken or clientData"}`);
         }
 
-        let decodeRefreshToken = Buffer.from(refreshToken, 'base64').toString('utf-8');
+        const decodedRefreshToken = Buffer.from(refreshToken, 'base64').toString('utf-8');
+        const updatedToken = Buffer.from(
+            decodedRefreshToken.replace(/(_token=)[^&]*/, `$1${Buffer.from(clientData).toString('base64')}`)
+        ).toString('base64');
 
-        const token = Buffer.from(decodeRefreshToken.replace(/(_token=)[^&]*/, `$1${Buffer.from(clientData).toString('base64')}`)).toString('base64');
-
-        res.send({
-            status: "success",
-            message: "Token is valid.",
-            token: token,
-            url: "",
-            accountType: "growtopia"
-        });
+        res.setHeader('Content-Type', 'text/html');
+        res.send(`{"status":"success","message":"Token is valid.","token":"${updatedToken}","url":"","accountType":"growtopia"}`);
     } catch (error) {
-        res.status(500).send({ status: "error", message: "Internal Server Error" });
+        res.setHeader('Content-Type', 'text/html');
+        res.status(500).send(`{"status":"error","message":"Internal Server Error"}`);
     }
 });
 
