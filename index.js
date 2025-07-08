@@ -19,7 +19,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    console.log(`${req.method} request for '${req.url}' - ${JSON.stringify(req.body)} | Status: ${res.statusCode}`);
+    res.on('finish', () => {
+        console.log(`${req.method} ${req.url} - Status: ${res.statusCode} | Body: ${JSON.stringify(req.body)}`);
+    });
     next();
 });
 app.use(express.json());
@@ -35,22 +37,15 @@ app.use(express.static(__dirname + '/public'));
 app.all('/player/login/dashboard', function (req, res) {
     const tData = {};
     try {
-        // parsing the data from req.body
         const uData = JSON.stringify(req.body).split('"')[1].split('\\n');
         const uName = uData[0].split('|');
         const uPass = uData[1].split('|');
 
-        // Format will be: tankIDName: user-name - tankIDPass: user-pass
-        // console.log(`${uName[0]}: ${uName[1]} - ${uPass[0]}: ${uPass[1]}`);
-
-        for (let i = 0; i < uData.length - 1; i++) { // -1 to remove the last empty value n string
+        for (let i = 0; i < uData.length - 1; i++) {
             const d = uData[i].split('|');
             tData[d[0]] = d[1];
         }
 
-        // console.log(tData);
-
-        // If the user and pass is not empty, redirect to the next page
         if (uName[1] && uPass[1]) {
             return res.redirect('/player/growid/login/validate');
         }
@@ -62,35 +57,45 @@ app.all('/player/login/dashboard', function (req, res) {
 });
 
 app.all('/player/growid/login/validate', (req, res) => {
-    const { type, growId, password, email = '', gender = 0 } = req.body;
-    console.log(`Type: ${type} | GrowID: ${growId} | Password: ${password} | Email: ${email} | Gender: ${gender}`);
-    const _token = req.body._token;
-    // console.log(`Body Token: ${_token}`);
+    const { type, growId, password, email = '', gender = 0, _token } = req.body;
 
+    console.log(`Type: ${type} | GrowID: ${growId} | Password: ${password} | Email: ${email} | Gender: ${gender}`);
+    
     if (!_token || !type || !growId || !password) {
-        console.log('Invalid request cuz no token, type, growId, or password');
-        return res.send(
-            '{"status":"error","message":"Invalid request.","token":"","url":"","accountType":""}',
-        );
+        console.log('Invalid request: missing _token, type, growId, or password');
+        return res.send({
+            status: "error",
+            message: "Invalid request.",
+            token: "",
+            url: "",
+            accountType: ""
+        });
     }
 
     if (type === "reg" && !isValidEmail(email)) {
-        console.log('Invalid email');
-        return res.send(
-            '{"status":"error","message":"Invalid email.","token":"","url":"","accountType":""}',
-        );
+        console.log('Invalid email format');
+        return res.send({
+            status: "error",
+            message: "Invalid email.",
+            token: "",
+            url: "",
+            accountType: ""
+        });
     }
 
-    // Note: The gender param is used on gt3 base | &gender=${parseGender(gender)}
     const tokenData = type === 'reg'
-        ? `_token=${_token}&type=${type}&growId=${growId}&password=${password}&email=${email}`
+        ? `_token=${_token}&type=${type}&growId=${growId}&password=${password}&email=${email}&gender=${gender}`
         : `_token=${_token}&type=${type}&growId=${growId}&password=${password}`;
 
     const token = Buffer.from(tokenData).toString('base64');
 
-    res.send(
-        `{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia"}`,
-    );
+    res.send({
+        status: "success",
+        message: "Account Validated.",
+        token: token,
+        url: "",
+        accountType: "growtopia"
+    });
 });
 
 app.all('/player/growid/checkToken', (req, res) => {
