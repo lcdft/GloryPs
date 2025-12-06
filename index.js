@@ -61,31 +61,42 @@ app.all('/player/growid/login/validate', (req, res) => {
 
     const trimmedGrowId = (growId || '').trim();
     const trimmedPassword = (password || '').trim();
-    const isGuest = trimmedGrowId === '' && trimmedPassword === '';
+    const isGuestRequest =
+        type === 'guest' || (trimmedGrowId === '' && trimmedPassword === '');
 
     console.log(
-        `Type: ${type} | GrowID: ${isGuest ? 'GUEST' : trimmedGrowId} | Password: ${isGuest ? '(guest)' : '***'} | Email: ${email} | Gender: ${gender}`
+        `Type: ${type} | GrowID: ${isGuestRequest ? 'GUEST_MODE' : trimmedGrowId} | Password: ${isGuestRequest ? '(guest)' : '***'} | Email: ${email} | Gender: ${gender}`
     );
 
-    // Must have _token and type
+    // Must have _token and type at least
     if (!_token || !type) {
         console.log('Invalid request: missing _token or type');
         res.setHeader('Content-Type', 'text/html');
         return res.send(`{"status":"error","message":"Invalid request.","token":"","url":"","accountType":""}`);
     }
 
-    // ===== GUEST LOGIN HANDLING =====
-    // If growId + password are empty → treat as guest and STILL return success
-    if (isGuest) {
-        const tokenData = `_token=${_token}&type=guest&growId=guest&password=guest`;
+    // ===== GUEST LOGIN → AUTO REGISTER RANDOM ACCOUNT =====
+    if (isGuestRequest) {
+        const guestId = 'Guest' + Math.floor(100000 + Math.random() * 900000);
+        const guestPass = 'g' + Math.floor(100000 + Math.random() * 900000);
+        const guestEmail = `${guestId.toLowerCase()}@guest.local`;
+
+        const tokenData =
+            `_token=${_token}` +
+            `&type=reg` +
+            `&growId=${guestId}` +
+            `&password=${guestPass}` +
+            `&email=${guestEmail}` +
+            `&gender=${gender}`;
+
         const token = Buffer.from(tokenData).toString('base64');
 
         res.setHeader('Content-Type', 'text/html');
         return res.send(
-            `{"status":"success","message":"Guest login.","token":"${token}","url":"","accountType":"growtopia"}`
+            `{"status":"success","message":"Guest account created.","token":"${token}","url":"","accountType":"growtopia"}`
         );
     }
-    // =================================
+    // ======================================================
 
     // For normal log / reg we require growId + password
     if (!trimmedGrowId || !trimmedPassword) {
