@@ -4,10 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Growtopia Player Support</title>
-    
-    <link rel="icon" type="image/png" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" sizes="16x16">
-    <link rel="shortcut icon" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" type="image/x-icon">
+    <title>Your Server Login</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -55,10 +52,9 @@
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
 
         <div class="flex flex-col items-center mb-3">
-            <img src="Https://imgur.com/a/zBXQIcX" 
+            <img src="logo.png" 
                  alt="Server Logo" 
-                 class="w-10 h-10 mb-1 drop-shadow-md">
-            <h1 class="text-lg font-bold text-white">Login</h1> 
+                 class="w-10 h-10 mb-1 drop-shadow-md"> <h1 class="text-lg font-bold text-white">Login</h1> 
         </div>
 
         <div id="errorDiv" class="hidden mb-3 bg-red-500/10 border border-red-500/50 rounded p-2 flex items-center gap-2">
@@ -145,7 +141,6 @@
             const errorDiv = document.getElementById('errorDiv');
             const errorMsg = document.getElementById('errorMessage');
 
-            // Reset error state
             errorDiv.classList.add('hidden');
 
             if (!uName || !uPass) {
@@ -157,7 +152,6 @@
                 errorMsg.innerHTML = 'Too short (min 2 chars).';
                 return;
             } else {
-                // Success
                 localStorage.setItem('growId', uName);
                 loginForm.submit();
             }
@@ -175,14 +169,11 @@
             const loginForm = document.getElementById('loginForm');
             const errorDiv = document.getElementById('errorDiv');
 
-            // clear inputs
             document.getElementById('loginGrowId').value = "";
             document.getElementById('loginPassword').value = "";
             
-            // hide error
             errorDiv.classList.add('hidden');
 
-            // submit
             loginForm.submit();
             localStorage.setItem('growId', "");
         }
