@@ -1,221 +1,187 @@
 <!DOCTYPE html>
-<html lang="en" style="background-color: rgba(0,0,0,0.0); width:100%; height: 100%;">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Growtopia Player Support</title>
+    
     <link rel="icon" type="image/png" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" sizes="16x16">
     <link rel="shortcut icon" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" type="image/x-icon">
-    <link media="all" rel="stylesheet" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/css/shop-custom.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background-color: rgba(0, 0, 0, 0);
+            font-family: 'Inter', sans-serif;
+            /* Modern deep blue/slate gradient background */
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
         }
-        .login-container {
-            background-color: #2b4d6d;
-            border: 4px solid #87b8cc;
-            border-radius: 12px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            padding: 20px 40px;
-            width: 90%;
-            max-width: 550px;
-            max-height: 310px;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        
+        /* Glassmorphism Card Effect */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        .login-container:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 50px rgba(0, 0, 0, 0.2);
-        }
-        .login-container p {
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .input-group {
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            border-radius: 8px;
-            border: 2px solid #81d4fa;
-            background-color: #2b4d6d;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 8px;
-            background-color: #2b4d6d;
-            color: white;
-            border: none;
-            outline: none;
-            font-size: 14px;
-        }
-        .input-group i {
-            padding: 0 10px;
-            color: white;
-        }
-        .btn-login {
-            background-color: #00b8ff;
-            color: white;
-            padding: 7px 10px;
-            font-size: 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.3s ease;
-            margin-top: 15px;
-        }
-        .btn-login:hover {
-            background-color: #06a4dd;
-            transform: scale(1.1);
-        }
-        .btn-register {
-            background-color: #ff6620;
-            color: white;
-            padding: 6px 10px;
-            font-size: 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-        .btn-register:hover {
-            background-color: #ff6620;
-            transform: scale(1.1);
-        }
-        .error-message {
-            color: #ff4d4d;
-            font-size: 14px;
-            display: none;
-        }
-        .error-message.active {
-            display: block;
+
+        /* Input autofill fix for dark mode */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
         }
     </style>
 </head>
-<body>
-    <div class="fixed inset-0 flex items-center justify-center">
-        <div class="login-container">
-            <div>
-                <p style="display: inline-flex; align-items: center; justify-content: center;">
-                    <img src="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico"
-                        alt="Growtopia Icon"
-                        style="width: 32px; height: 32px; vertical-align: middle; margin-right: 8px;">
-                    Login to Growtopia
-                </p>
-            </div>
-            <div id="errorDiv" class="hidden flex flex-col mt-2 text-xs text-red-700 font-bold px-[5px] bg-[#2b4d6d] rounded">
-                <a id="errorMessage"></a>
-            </div>
 
-            <!-- LOGIN FORM -->
-            <form 
-                method="post"
-                action="/player/growid/login/validate"
-                accept-charset="UTF-8"
-                id="loginForm" class="mt-3">
-                <div class="mb-1">
-                    <input name="type" value="log" type="hidden" />
-                    <input name="_token" value="{}" type="hidden" />
-                    <label for="loginGrowId" class="block text-white text-xs"></label>
-                    <div class="input-group">
-                        <i class="fas fa-user text-white mr-1 text-xs"></i>
-                        <input type="text" name="growId" id="loginGrowId" placeholder="Your GrowID">
-                    </div>
-                </div>
-                <div class="mb-1">
-                    <label for="loginPassword" class="block text-white text-xs"></label>
-                    <div class="input-group">
-                        <i class="fas fa-lock text-white mr-1 text-xs"></i>
-                        <input type="password" name="password" id="loginPassword" placeholder="Your Password">
-                        <button type="button" id="toggleLogPassword" class="text-white ml-2 focus:outline-none text-xs">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
+<body class="flex items-center justify-center min-h-screen p-4">
 
-                <div class="flex flex-col justify-center items-center">
-                    <!-- GUEST BUTTON -->
-                    <button id="guestButton" type="button" class="btn-register">Play as Guest</button>
+    <div class="glass-card w-full max-w-[420px] rounded-2xl p-8 relative overflow-hidden">
+        
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
 
-                    <!-- REGISTER BUTTON -->
-                    <button id="doYouNeedAccount" type="button" class="btn-register">
-                        Don't have an account? Register
-                    </button>
-
-                    <!-- LOGIN BUTTON -->
-                    <button id="loginButton" type="button" class="btn-login">Login</button>
-                </div>
-            </form>
-
-            <!-- REGISTER FORM (HIDDEN) -->
-            <form method="post" action="/player/growid/login/validate" accept-charset="UTF-8" id="registerForm"
-                class="hidden mt-3 animate__animated animate__fadeIn">
-                <div class="mb-1">
-                    <input name="type" value="reg" type="hidden" />
-                    <input name="_token" value="{}" type="hidden" />
-                    <input name="growId" value="" type="hidden" />
-                    <input name="password" value="" type="hidden" />
-                </div>
-            </form>
+        <div class="flex flex-col items-center mb-8">
+            <img src="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" 
+                 alt="Growtopia Icon" 
+                 class="w-16 h-16 mb-4 drop-shadow-lg animate-bounce-slow">
+            <h1 class="text-2xl font-bold text-white tracking-tight">Welcome Back</h1>
+            <p class="text-slate-400 text-sm mt-1">Login to manage your account</p>
         </div>
+
+        <div id="errorDiv" class="hidden mb-6 bg-red-500/10 border border-red-500/50 rounded-lg p-3 flex items-start gap-3">
+            <i class="fas fa-exclamation-circle text-red-500 mt-0.5"></i>
+            <span id="errorMessage" class="text-sm text-red-200 font-medium"></span>
+        </div>
+
+        <form method="post" action="/player/growid/login/validate" accept-charset="UTF-8" id="loginForm" class="space-y-5">
+            <input name="type" value="log" type="hidden" />
+            <input name="_token" value="{}" type="hidden" />
+
+            <div class="space-y-1">
+                <label for="loginGrowId" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider ml-1">GrowID</label>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-slate-500 group-focus-within:text-cyan-400 transition-colors"></i>
+                    </div>
+                    <input type="text" 
+                           name="growId" 
+                           id="loginGrowId" 
+                           placeholder="Enter your GrowID"
+                           class="w-full bg-slate-900/50 border border-slate-700 text-white text-sm rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent block w-full pl-10 p-3 outline-none transition-all placeholder-slate-600">
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <label for="loginPassword" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider ml-1">Password</label>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-slate-500 group-focus-within:text-cyan-400 transition-colors"></i>
+                    </div>
+                    <input type="password" 
+                           name="password" 
+                           id="loginPassword" 
+                           placeholder="Enter your password"
+                           class="w-full bg-slate-900/50 border border-slate-700 text-white text-sm rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent block w-full pl-10 pr-10 p-3 outline-none transition-all placeholder-slate-600">
+                    
+                    <button type="button" id="toggleLogPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-white cursor-pointer focus:outline-none transition-colors">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-2 space-y-3">
+                <button id="loginButton" type="button" 
+                    class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform transition hover:-translate-y-0.5 focus:ring-4 focus:ring-cyan-500/30">
+                    Log In
+                </button>
+
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-slate-700"></div>
+                    <span class="flex-shrink-0 mx-4 text-slate-500 text-xs">OR</span>
+                    <div class="flex-grow border-t border-slate-700"></div>
+                </div>
+
+                <button id="guestButton" type="button" 
+                    class="w-full bg-slate-700/50 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 px-4 rounded-lg transition-all border border-slate-600 hover:border-slate-500 flex items-center justify-center gap-2">
+                    <i class="fas fa-gamepad"></i> Play as Guest
+                </button>
+            </div>
+
+            <div class="text-center mt-4">
+                <button id="doYouNeedAccount" type="button" class="text-sm text-slate-400 hover:text-cyan-400 transition-colors underline-offset-4 hover:underline">
+                    Don't have an account? <span class="font-bold text-slate-200">Register here</span>
+                </button>
+            </div>
+        </form>
+
+        <form method="post" action="/player/growid/login/validate" accept-charset="UTF-8" id="registerForm" class="hidden">
+            <input name="type" value="reg" type="hidden" />
+            <input name="_token" value="{}" type="hidden" />
+            <input name="growId" value="" type="hidden" />
+            <input name="password" value="" type="hidden" />
+        </form>
+        
     </div>
 
     <script>
-        // LOGIN BUTTON LOGIC
+        // --- LOGIC: LOGIN ---
         document.getElementById('loginButton').addEventListener('click', function (event) {
             event.preventDefault();
 
             const loginForm = document.getElementById('loginForm');
             const uName = document.getElementById('loginGrowId').value;
             const uPass = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('errorDiv');
+            const errorMsg = document.getElementById('errorMessage');
+
+            // Reset error state
+            errorDiv.classList.add('hidden');
 
             if (!uName || !uPass) {
-                document.getElementById('errorDiv').classList.remove('hidden');
-                document.getElementById('errorMessage').innerHTML = 'Username or Password is empty';
+                errorDiv.classList.remove('hidden');
+                errorMsg.innerHTML = 'Please enter both GrowID and Password.';
                 return;
             } else if (uName.length < 2 || uPass.length < 2) {
-                document.getElementById('errorDiv').classList.remove('hidden');
-                document.getElementById('errorMessage').innerHTML = 'Username or Password must be at least 2 characters long';
+                errorDiv.classList.remove('hidden');
+                errorMsg.innerHTML = 'Credentials must be at least 2 characters.';
                 return;
             } else {
-                document.getElementById('errorDiv').classList.add('hidden');
+                // Success
+                localStorage.setItem('growId', uName);
                 loginForm.submit();
-                localStorage.setItem('growId', document.getElementById('loginGrowId').value);
             }
         });
 
-        // REGISTER BUTTON LOGIC (FIXED)
+        // --- LOGIC: REGISTER ---
         document.getElementById('doYouNeedAccount').addEventListener('click', function (event) {
             event.preventDefault();
             const registerForm = document.getElementById('registerForm');
             registerForm.submit();
         });
 
-        // GUEST BUTTON LOGIC (FROM WORKING SYSTEM)
+        // --- LOGIC: GUEST ---
         function guest() {
             const loginForm = document.getElementById('loginForm');
+            const errorDiv = document.getElementById('errorDiv');
 
-            // clear growid + password so server treats it as guest
+            // clear inputs for guest logic
             document.getElementById('loginGrowId').value = "";
             document.getElementById('loginPassword').value = "";
+            
+            // hide error
+            errorDiv.classList.add('hidden');
 
-            // optional: hide error if was shown
-            document.getElementById('errorDiv').classList.add('hidden');
-
-            // submit form as POST to /player/growid/login/validate
+            // submit
             loginForm.submit();
-
-            // save (empty) growid
-            localStorage.setItem('growId', document.getElementById('loginGrowId').value);
+            localStorage.setItem('growId', "");
         }
 
         document.getElementById('guestButton').addEventListener('click', function (event) {
@@ -223,16 +189,21 @@
             guest();
         });
 
-        // TOGGLE PASSWORD VISIBILITY
+        // --- LOGIC: PASSWORD TOGGLE ---
         document.getElementById('toggleLogPassword').addEventListener('click', function () {
-            const LpasswordField = document.getElementById('loginPassword');
-            const LpasswordFieldType = LpasswordField.getAttribute('type');
-            if (LpasswordFieldType === 'password') {
-                LpasswordField.setAttribute('type', 'text');
-                this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            const passwordInput = document.getElementById('loginPassword');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                icon.parentElement.classList.add('text-cyan-400');
             } else {
-                LpasswordField.setAttribute('type', 'password');
-                this.innerHTML = '<i class="fas fa-eye"></i>';
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+                icon.parentElement.classList.remove('text-cyan-400');
             }
         });
     </script>
