@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" style="background-color: transparent;">
+<html lang="en" style="background-color: transparent; width: 100%; height: 100%;">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Growtopia Player Support</title>
     
     <link rel="icon" type="image/png" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" sizes="16x16">
@@ -15,17 +15,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
+        /* Essential full-size for mobile/client view */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: transparent; 
-            /* Ensures centering for the GT Client window */
+            /* Enforcing flex properties for centering */
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; 
+            min-height: 100%;
+            overflow: hidden; /* Prevents scrollbars */
         }
         
         .glass-card {
@@ -45,6 +51,12 @@
             -webkit-text-fill-color: white !important;
             transition: background-color 5000s ease-in-out 0s;
         }
+
+        /* Scrollbar hiding (already in your original, kept for optimization) */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
     </style>
 </head>
 
@@ -55,9 +67,9 @@
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
 
         <div class="flex flex-col items-center mb-3">
-            <img src="YOUR_CUSTOM_LOGO_URL_HERE" 
-                 alt="Server Logo" 
-                 class="w-10 h-10 mb-1 drop-shadow-md">
+            <img src="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" 
+                 alt="Growtopia Icon" 
+                 class="w-10 h-10 mb-1 drop-shadow-md"> 
             <h1 class="text-lg font-bold text-white">Login</h1> 
         </div>
 
@@ -138,16 +150,12 @@
         // --- LOGIC: LOGIN ---
         document.getElementById('loginButton').addEventListener('click', function (event) {
             event.preventDefault();
-
             const loginForm = document.getElementById('loginForm');
             const uName = document.getElementById('loginGrowId').value;
             const uPass = document.getElementById('loginPassword').value;
             const errorDiv = document.getElementById('errorDiv');
             const errorMsg = document.getElementById('errorMessage');
-
-            // Reset error state
             errorDiv.classList.add('hidden');
-
             if (!uName || !uPass) {
                 errorDiv.classList.remove('hidden');
                 errorMsg.innerHTML = 'GrowID and Password required.';
@@ -157,7 +165,6 @@
                 errorMsg.innerHTML = 'Too short (min 2 chars).';
                 return;
             } else {
-                // Success
                 localStorage.setItem('growId', uName);
                 loginForm.submit();
             }
@@ -166,37 +173,27 @@
         // --- LOGIC: REGISTER ---
         document.getElementById('doYouNeedAccount').addEventListener('click', function (event) {
             event.preventDefault();
-            const registerForm = document.getElementById('registerForm');
-            registerForm.submit();
+            document.getElementById('registerForm').submit();
         });
 
         // --- LOGIC: GUEST ---
         function guest() {
             const loginForm = document.getElementById('loginForm');
-            const errorDiv = document.getElementById('errorDiv');
-
-            // clear inputs
             document.getElementById('loginGrowId').value = "";
             document.getElementById('loginPassword').value = "";
-            
-            // hide error
-            errorDiv.classList.add('hidden');
-
-            // submit
+            document.getElementById('errorDiv').classList.add('hidden');
             loginForm.submit();
             localStorage.setItem('growId', "");
         }
-
         document.getElementById('guestButton').addEventListener('click', function (event) {
             event.preventDefault();
             guest();
         });
 
-        // --- LOGIC: PASSWORD TOGGLE ---
+        // --- LOGIC: PASSdsWORD TOGGLE ---
         document.getElementById('toggleLogPassword').addEventListener('click', function () {
             const passwordInput = document.getElementById('loginPassword');
             const icon = this.querySelector('i');
-            
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 icon.classList.remove('fa-eye');
