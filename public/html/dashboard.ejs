@@ -30,7 +30,7 @@
             align-items: center;
             justify-content: center;
             min-height: 100%;
-            overflow: hidden; /* Prevents scrollbars */
+            overflow: hidden; 
         }
         
         .glass-card {
@@ -41,7 +41,6 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
-        /* Tweak input autofill for dark mode */
         input:-webkit-autofill,
         input:-webkit-autofill:hover, 
         input:-webkit-autofill:focus, 
@@ -51,7 +50,6 @@
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* Scrollbar hiding */
         ::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -155,6 +153,7 @@
             const errorDiv = document.getElementById('errorDiv');
             const errorMsg = document.getElementById('errorMessage');
             errorDiv.classList.add('hidden');
+            
             if (!uName || !uPass) {
                 errorDiv.classList.remove('hidden');
                 errorMsg.innerHTML = 'GrowID and Password required.';
@@ -165,14 +164,23 @@
                 return;
             } else {
                 localStorage.setItem('growId', uName);
-                loginForm.submit();
+                
+                // *** FIX: Delay the submission to prevent instant client close ***
+                setTimeout(() => {
+                    loginForm.submit();
+                }, 50); // Delay by 50ms
             }
         });
 
         // --- LOGIC: REGISTER ---
         document.getElementById('doYouNeedAccount').addEventListener('click', function (event) {
             event.preventDefault();
-            document.getElementById('registerForm').submit();
+            const registerForm = document.getElementById('registerForm');
+            
+            // *** FIX: Delay the submission to prevent instant client close ***
+            setTimeout(() => {
+                registerForm.submit();
+            }, 50); // Delay by 50ms
         });
 
         // --- LOGIC: GUEST ---
@@ -181,7 +189,12 @@
             document.getElementById('loginGrowId').value = "";
             document.getElementById('loginPassword').value = "";
             document.getElementById('errorDiv').classList.add('hidden');
-            loginForm.submit();
+            
+            // *** FIX: Delay the submission to prevent instant client close ***
+            setTimeout(() => {
+                loginForm.submit();
+            }, 50); // Delay by 50ms
+            
             localStorage.setItem('growId', "");
         }
         document.getElementById('guestButton').addEventListener('click', function (event) {
