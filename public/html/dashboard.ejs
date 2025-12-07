@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Growtopia Player Support</title>
+    <title>Your Server Login</title>
     
-    <link rel="icon" type="image/png" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" sizes="16x16">
-    <link rel="shortcut icon" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -26,7 +26,6 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: transparent; 
-            /* Enforcing flex properties for centering */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -52,7 +51,7 @@
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* Scrollbar hiding (already in your original, kept for optimization) */
+        /* Scrollbar hiding */
         ::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -62,13 +61,13 @@
 
 <body>
 
-    <div class="glass-card w-[300px] rounded-xl p-5 relative">
+    <div class="glass-card w-[340px] rounded-xl p-5 relative">
         
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
 
         <div class="flex flex-col items-center mb-3">
-            <img src="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" 
-                 alt="Growtopia Icon" 
+            <img src="logo.png" 
+                 alt="Server Logo" 
                  class="w-10 h-10 mb-1 drop-shadow-md"> 
             <h1 class="text-lg font-bold text-white">Login</h1> 
         </div>
@@ -190,7 +189,7 @@
             guest();
         });
 
-        // --- LOGIC: PASSdsWORD TOGGLE ---
+        // --- LOGIC: PASSWORD TOGGLE ---
         document.getElementById('toggleLogPassword').addEventListener('click', function () {
             const passwordInput = document.getElementById('loginPassword');
             const icon = this.querySelector('i');
