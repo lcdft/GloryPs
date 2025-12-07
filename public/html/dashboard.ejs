@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Your Server Login</title>
+    <title>Growtopia Player Support</title>
     
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" sizes="16x16">
+    <link rel="shortcut icon" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" type="image/x-icon">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -26,11 +26,12 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: transparent; 
+            /* Enforcing flex properties for centering */
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100%;
-            overflow: hidden; 
+            overflow: hidden; /* Prevents scrollbars */
         }
         
         .glass-card {
@@ -41,6 +42,7 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
+        /* Tweak input autofill for dark mode */
         input:-webkit-autofill,
         input:-webkit-autofill:hover, 
         input:-webkit-autofill:focus, 
@@ -50,6 +52,7 @@
             transition: background-color 5000s ease-in-out 0s;
         }
 
+        /* Scrollbar hiding (already in your original, kept for optimization) */
         ::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -59,13 +62,13 @@
 
 <body>
 
-    <div class="glass-card w-[340px] rounded-xl p-5 relative">
+    <div class="glass-card w-[300px] rounded-xl p-5 relative">
         
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
 
         <div class="flex flex-col items-center mb-3">
-            <img src="logo.png" 
-                 alt="Server Logo" 
+            <img src="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" 
+                 alt="Growtopia Icon" 
                  class="w-10 h-10 mb-1 drop-shadow-md"> 
             <h1 class="text-lg font-bold text-white">Login</h1> 
         </div>
@@ -153,7 +156,6 @@
             const errorDiv = document.getElementById('errorDiv');
             const errorMsg = document.getElementById('errorMessage');
             errorDiv.classList.add('hidden');
-            
             if (!uName || !uPass) {
                 errorDiv.classList.remove('hidden');
                 errorMsg.innerHTML = 'GrowID and Password required.';
@@ -164,23 +166,14 @@
                 return;
             } else {
                 localStorage.setItem('growId', uName);
-                
-                // *** FIX: Delay the submission to prevent instant client close ***
-                setTimeout(() => {
-                    loginForm.submit();
-                }, 50); // Delay by 50ms
+                loginForm.submit();
             }
         });
 
         // --- LOGIC: REGISTER ---
         document.getElementById('doYouNeedAccount').addEventListener('click', function (event) {
             event.preventDefault();
-            const registerForm = document.getElementById('registerForm');
-            
-            // *** FIX: Delay the submission to prevent instant client close ***
-            setTimeout(() => {
-                registerForm.submit();
-            }, 50); // Delay by 50ms
+            document.getElementById('registerForm').submit();
         });
 
         // --- LOGIC: GUEST ---
@@ -189,12 +182,7 @@
             document.getElementById('loginGrowId').value = "";
             document.getElementById('loginPassword').value = "";
             document.getElementById('errorDiv').classList.add('hidden');
-            
-            // *** FIX: Delay the submission to prevent instant client close ***
-            setTimeout(() => {
-                loginForm.submit();
-            }, 50); // Delay by 50ms
-            
+            loginForm.submit();
             localStorage.setItem('growId', "");
         }
         document.getElementById('guestButton').addEventListener('click', function (event) {
