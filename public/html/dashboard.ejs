@@ -62,23 +62,24 @@
 
 <body>
 
-    <div class="glass-card w-[360px] rounded-b-xl p-4 relative">
+    <div class="glass-card w-80 rounded-b-xl p-4 relative">
         
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
 
-        <div class="flex flex-col items-center mb-2">
-            <img src="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" 
-                 alt="Growtopia Icon" 
-                 class="w-8 h-8 mb-0.5 drop-shadow-md"> 
-            <h1 class="text-base font-bold text-white">Login</h1> 
+        <div class="absolute -top-12 left-1/2 -translate-x-1/2">
+            <img src="/html/logo.png" 
+                 alt="Logo" 
+                 class="h-24 w-auto drop-shadow-md"> 
         </div>
+
+        <div class="mt-10"></div>
 
         <div id="errorDiv" class="hidden mb-2 bg-red-500/10 border border-red-500/50 rounded p-1.5 flex items-center gap-2">
             <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
             <span id="errorMessage" class="text-xs text-red-200 font-medium leading-tight"></span>
         </div>
 
-        <form method="post" action="/player/growid/login/validate" accept-charset="UTF-8" id="loginForm" class="space-y-2">
+        <form method="post" action="/player/growid/login/validate" accept-charset="UTF-8" id="loginForm" class="space-y-1.5">
             <input name="type" value="log" type="hidden" />
             <input name="_token" value="{}" type="hidden" />
 
