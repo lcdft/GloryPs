@@ -93,7 +93,7 @@ app.all('/player/growid/login/validate', async (req, res) => {
         `Type: ${type} | GrowID: ${isGuestRequest ? 'GUEST_MODE' : trimmedGrowId} | Password: ${isGuestRequest ? '(guest)' : '***'} | Email: ${email} | Gender: ${gender}`
     );
 
-    // Must have _token and type at least
+    // Must have _token anddd type at least
     if (!_token || !type) {
         console.log('Invalid request: missing _token or type');
         res.setHeader('Content-Type', 'text/html');
@@ -169,6 +169,25 @@ app.all('/player/growid/checkToken', (req, res) => {
             return res.status(400).send(`{"status":"error","message":"Missing refreshToken or clientData"}`);
         }
 
+        // 1. LOG THE CLIENT DATA FOR ANALYSIS
+        console.log(`[ANTIHACK LOG] Checking Token for: ${refreshToken.substring(0, 10)}...`);
+        console.log(`[ANTIHACK LOG] RAW ClientData received: ${clientData}`);
+        
+        // --- START: ANTI-CHEAT CLIENT DATA VALIDATION ---
+        // Adjust these variables as you gather more data from clean clients.
+        const MIN_CLIENT_DATA_LENGTH = 50; 
+        const KEY_GAME_VERSION = 'gameversion/5.11'; 
+        
+        // Check for minimum length AND the presence of the expected game version string
+        if (clientData.length < MIN_CLIENT_DATA_LENGTH || !clientData.includes(KEY_GAME_VERSION)) {
+            console.log(`[ANTIHACK] BLOCKING SUSPICIOUS TOKEN CHECK - ClientData invalid (Length: ${clientData.length}, Version Check: ${clientData.includes(KEY_GAME_VERSION) ? 'PASS' : 'FAIL'}).`);
+            res.setHeader('Content-Type', 'text/html');
+            // Block the connection with a 403 Forbidden status
+            return res.status(403).send(`{"status":"error","message":"Token validation failed: Invalid client signature."}`);
+        }
+        // --- END: ANTI-CHEAT CLIENT DATA VALIDATION ---
+
+        // The token is considered valid, proceed with refresh logic
         const decodedRefreshToken = Buffer.from(refreshToken, 'base64').toString('utf-8');
         const updatedToken = Buffer.from(
             decodedRefreshToken.replace(/(_token=)[^&]*/, `$1${Buffer.from(clientData).toString('base64')}`)
@@ -177,6 +196,7 @@ app.all('/player/growid/checkToken', (req, res) => {
         res.setHeader('Content-Type', 'text/html');
         res.send(`{"status":"success","message":"Token is valid.","token":"${updatedToken}","url":"","accountType":"growtopia"}`);
     } catch (error) {
+        console.error(`Token Check Error: ${error.message}`);
         res.setHeader('Content-Type', 'text/html');
         res.status(500).send(`{"status":"error","message":"Internal Server Error"}`);
     }
