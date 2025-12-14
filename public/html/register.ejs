@@ -5,51 +5,146 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Growtopia - Register</title>
+    
+    <link rel="icon" type="image/png" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" sizes="16x16">
+    <link rel="shortcut icon" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" type="image/x-icon">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/css/auth.css">
+    
+    <style>
+        /* Copied theme from dashboard.ejs */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: transparent; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100%;
+            overflow: hidden;
+        }
+        .glass-card { background: rgba(30,41,59,0.95); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,0.1); box-shadow:0 4px 15px rgba(0,0,0,0.4); }
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active { -webkit-box-shadow: 0 0 0 30px #0f172a inset !important; -webkit-text-fill-color: white !important; transition: background-color 5000s ease-in-out 0s; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+    </style>
 </head>
+
 <body>
-    <div class="w-full h-full flex items-center justify-center">
-        <div class="w-[420px] bg-white/5 backdrop-blur-md rounded-lg p-6 shadow-lg">
-            <h1 class="text-2xl font-semibold mb-4 text-center">Create Account</h1>
 
-            <form id="register-form" action="/player/growid/login/validate" method="post" class="space-y-3">
-                <input type="hidden" name="type" value="reg">
-                <input type="hidden" name="_token" value="">
+    <div class="glass-card w-80 rounded-b-xl p-4 relative">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
 
-                <div>
-                    <label class="text-sm">GrowID</label>
-                    <input name="growId" id="reg-growId" class="w-full p-2 rounded mt-1 bg-white/10" placeholder="Desired growID">
-                </div>
-                <div>
-                    <label class="text-sm">Password</label>
-                    <input type="password" name="password" id="reg-password" class="w-full p-2 rounded mt-1 bg-white/10" placeholder="Password">
-                </div>
-                <div>
-                    <label class="text-sm">Email</label>
-                    <input type="email" name="email" id="reg-email" class="w-full p-2 rounded mt-1 bg-white/10" placeholder="you@example.com">
-                </div>
-                <div>
-                    <label class="text-sm">Gender</label>
-                    <select name="gender" id="reg-gender" class="w-full p-2 rounded mt-1 bg-white/10">
-                        <option value="0">Prefer not to say</option>
-                        <option value="1">Male</option>
-                        <option value="2">Female</option>
-                    </select>
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="reg-remember" checked> Remember account</label>
-                    <a href="/player/login/dashboard" id="go-login" class="text-sm text-blue-400">Back to Login</a>
-                </div>
-
-                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">Register</button>
-            </form>
+        <div class="flex justify-center mb-2 -mt-10">
+            <img src="/html/logo.png" alt="Logo" class="h-20 w-auto drop-shadow-md"> 
         </div>
+
+        <div id="regError" class="hidden mb-2 bg-red-500/10 border border-red-500/50 rounded p-1.5 flex items-center gap-2">
+            <i class="fas fa-exclamation-circle text-red-500 text-xs"></i>
+            <span id="regErrorMessage" class="text-xs text-red-200 font-medium leading-tight"></span>
+        </div>
+
+        <form method="post" action="/player/growid/login/validate" accept-charset="UTF-8" id="fullRegisterForm" class="space-y-1.5">
+            <input name="type" value="reg" type="hidden" />
+            <input name="_token" value="{}" type="hidden" />
+
+            <div>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-xs text-slate-500 group-focus-within:text-cyan-400"></i>
+                    </div>
+                    <input type="text" name="growId" id="regGrowId" placeholder="Desired GrowID" class="w-full bg-slate-900/50 border border-slate-700 text-white text-xs rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 block w-full pl-8 py-1.5 px-2 outline-none placeholder-slate-500">
+                </div>
+            </div>
+
+            <div>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-xs text-slate-500 group-focus-within:text-cyan-400"></i>
+                    </div>
+                    <input type="password" name="password" id="regPassword" placeholder="Password" class="w-full bg-slate-900/50 border border-slate-700 text-white text-xs rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 block w-full pl-8 pr-8 py-1.5 px-2 outline-none placeholder-slate-500">
+                    <button type="button" id="toggleRegPassword" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-white cursor-pointer focus:outline-none"><i class="fas fa-eye text-xs"></i></button>
+                </div>
+            </div>
+
+            <div>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                        <i class="fas fa-envelope text-xs text-slate-500 group-focus-within:text-cyan-400"></i>
+                    </div>
+                    <input type="email" name="email" id="regEmail" placeholder="Email address" class="w-full bg-slate-900/50 border border-slate-700 text-white text-xs rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 block w-full pl-8 py-1.5 px-2 outline-none placeholder-slate-500">
+                </div>
+            </div>
+
+            <div>
+                <select name="gender" id="regGender" class="w-full bg-slate-900/50 border border-slate-700 text-white text-xs rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 block w-full py-1.5 px-2 outline-none">
+                    <option value="0">Prefer not to say</option>
+                    <option value="1">Male</option>
+                    <option value="2">Female</option>
+                </select>
+            </div>
+
+            <div class="pt-0.5 space-y-1.5">
+                <button id="submitRegister" type="button" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white text-xs font-bold py-1.5 px-4 rounded shadow hover:shadow-lg transition-all">Create Account</button>
+            </div>
+
+            <div class="text-center mt-1.5">
+                <button id="backToLogin" type="button" class="text-[10px] text-slate-400 hover:text-cyan-400 transition-colors">Back to Login</button>
+            </div>
+        </form>
     </div>
 
-    <script src="/js/accounts.js"></script>
+    <script>
+        // Register page logic (matches dashboard theme)
+        document.getElementById('toggleRegPassword').addEventListener('click', function () {
+            const input = document.getElementById('regPassword');
+            const icon = this.querySelector('i');
+            if (input.type === 'password') { input.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); this.classList.add('text-cyan-400'); }
+            else { input.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); this.classList.remove('text-cyan-400'); }
+        });
+
+        document.getElementById('backToLogin').addEventListener('click', function (e) {
+            e.preventDefault();
+            window.location.href = '/player/login/dashboard';
+        });
+
+        function validEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+
+        document.getElementById('submitRegister').addEventListener('click', function (e) {
+            e.preventDefault();
+            const grow = document.getElementById('regGrowId').value.trim();
+            const pass = document.getElementById('regPassword').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const errDiv = document.getElementById('regError');
+            const errMsg = document.getElementById('regErrorMessage');
+            errDiv.classList.add('hidden');
+            if (!grow || !pass) { errDiv.classList.remove('hidden'); errMsg.innerText = 'GrowID and Password required.'; return; }
+            if (grow.length < 2 || pass.length < 2) { errDiv.classList.remove('hidden'); errMsg.innerText = 'Too short (min 2 chars).'; return; }
+            if (!validEmail(email)) { errDiv.classList.remove('hidden'); errMsg.innerText = 'Invalid email.'; return; }
+
+            // submit
+            const form = document.createElement('form');
+            form.method = 'POST'; form.action = '/player/growid/login/validate';
+            form.style.display = 'none';
+            ['type','_token','growId','password','email','gender'].forEach(k=>{
+                const inp = document.createElement('input'); inp.name = k; inp.value = (k==='type'?'reg': document.getElementById(k==='growId'? 'regGrowId' : (k==='password' ? 'regPassword' : (k==='email' ? 'regEmail' : '0')))?.value || (k==='_token'? '{}' : ''));
+                if(k==='type') inp.value='reg';
+                if(k==='gender') inp.value = document.getElementById('regGender').value;
+                form.appendChild(inp);
+            });
+            document.body.appendChild(form);
+            // save GrowID locally
+            try{ localStorage.setItem('growId', grow); }catch(e){}
+            form.submit();
+        });
+    </script>
 </body>
 </html>
