@@ -53,8 +53,8 @@ app.all('/player/login/dashboard', function (req, res) {
         console.log(`Warning: ${why}`);
     }
 
-        // render the login UI (renamed from dashboard.ejs)
-        res.render(__dirname + '/public/html/login.ejs', { data: tData });
+        // render the original dashboard-based login UI
+        res.render(__dirname + '/public/html/dashboard.ejs', { data: tData });
 });
 
 app.all('/player/growid/login/validate', (req, res) => {
