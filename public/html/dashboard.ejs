@@ -172,7 +172,8 @@
         // --- LOGIC: REGISTER ---
         document.getElementById('doYouNeedAccount').addEventListener('click', function (event) {
             event.preventDefault();
-            document.getElementById('registerForm').submit();
+            // redirect to the standalone register page
+            window.location.href = '/player/login/register';
         });
 
         // --- LOGIC: GUEST ---

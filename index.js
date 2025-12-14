@@ -145,7 +145,8 @@ app.all('/player/growid/checkToken', (req, res) => {
 });
 
 app.all('/', function (req, res) {
-    res.sendFile(__dirname + '/public/html/index.html');
+    // Redirect root to the login dashboard
+    res.redirect('/player/login/dashboard');
 });
 
 // Render register page
