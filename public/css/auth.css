@@ -1,0 +1,4 @@
+/* Minimal overrides for auth pages */
+html,body{height:100%;}
+body{font-family:Inter,system-ui,Arial,sans-serif;background:transparent;}
+.backdrop-blur-md{backdrop-filter:blur(6px);}
