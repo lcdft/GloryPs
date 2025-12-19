@@ -11,22 +11,22 @@
         const list = getSaved();
         container.innerHTML = '';
         if (!list.length) {
-            container.innerHTML = '<div class="text-sm text-gray-300">No saved accounts</div>';
+            container.innerHTML = '<div class="text-sm text-gray-300 text-center py-4">No saved accounts</div>';
             return;
         }
         list.forEach((a, idx) => {
             const el = document.createElement('div');
-            el.className = 'p-2 bg-white/3 rounded flex justify-between items-center';
-            el.innerHTML = `<div class="truncate">${escapeHtml(a.growId || '')}</div>
+            el.className = 'account-item p-2 bg-white/5 rounded flex justify-between items-center cursor-pointer';
+            el.innerHTML = `<div class="truncate text-white">${escapeHtml(a.growId || '')}</div>
                 <div class="flex gap-2">
-                    <button data-idx="${idx}" class="use-account bg-blue-600 text-white px-2 py-1 rounded">Use</button>
-                    <button data-idx="${idx}" class="del-account bg-red-600 text-white px-2 py-1 rounded">Del</button>
+                    <button data-idx="${idx}" class="use-account bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-xs transition-all">Use</button>
+                    <button data-idx="${idx}" class="del-account bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-xs transition-all">Delete</button>
                 </div>`;
             container.appendChild(el);
         });
     }
 
-    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function escapeHtml(s){ return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>'); }
 
     function openChooser(){
         const chooser = document.getElementById('accounts-chooser');
@@ -38,16 +38,32 @@
         listEl.querySelectorAll('.del-account').forEach(btn=> btn.addEventListener('click', onDel));
     }
 
+    function openDashboard(){
+        const listEl = document.getElementById('accounts-list');
+        if(!listEl) return;
+        renderList(listEl);
+        listEl.querySelectorAll('.use-account').forEach(btn=> btn.addEventListener('click', onUse));
+        listEl.querySelectorAll('.del-account').forEach(btn=> btn.addEventListener('click', onDel));
+
+        // Set up clear all button
+        const clearAllBtn = document.getElementById('clear-all');
+        if(clearAllBtn) {
+            clearAllBtn.addEventListener('click', clearAll);
+        }
+    }
+
     function onUse(e){
         const idx = Number(e.currentTarget.dataset.idx);
         const acc = getSaved()[idx];
         if(!acc) return;
-        // populate login form
-        const grow = document.querySelector('input[name="growId"]');
-        const pass = document.querySelector('input[name="password"]');
-        if(grow) grow.value = acc.growId || '';
-        if(pass) pass.value = acc.password || '';
-        document.getElementById('accounts-chooser').classList.add('hidden');
+
+        // For dashboard, we need to redirect to login with the account info
+        // Store the account info temporarily
+        localStorage.setItem('temp_login_growid', acc.growId || '');
+        localStorage.setItem('temp_login_password', acc.password || '');
+
+        // Redirect to login page
+        window.location.href = '/player/login/dashboard';
     }
 
     function onDel(e){
@@ -58,7 +74,12 @@
         renderList(document.getElementById('accounts-list'));
     }
 
-    function clearAll(){ saveList([]); renderList(document.getElementById('accounts-list')); }
+    function clearAll(){
+        if(confirm('Are you sure you want to clear all saved accounts?')) {
+            saveList([]);
+            renderList(document.getElementById('accounts-list'));
+        }
+    }
 
     function attachFormSaver(form){
         if(!form) return;
@@ -96,12 +117,19 @@
     document.addEventListener('DOMContentLoaded', ()=>{
         const chooser = document.getElementById('accounts-chooser');
         const listEl = document.getElementById('accounts-list');
+        const dashboardListEl = document.getElementById('accounts-list');
+
         if(chooser && listEl){
             // open chooser on load per requirement
             openChooser();
             document.getElementById('close-chooser').addEventListener('click', ()=> chooser.classList.add('hidden'));
             document.getElementById('use-manual').addEventListener('click', ()=> chooser.classList.add('hidden'));
             document.getElementById('clear-all').addEventListener('click', clearAll);
+        }
+
+        // Check if we're on the dashboard page
+        if(window.location.pathname.includes('dashboard') && dashboardListEl) {
+            openDashboard();
         }
 
         attachFormSaver(document.getElementById('auth-form'));

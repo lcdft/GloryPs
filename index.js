@@ -35,29 +35,95 @@ app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 
 app.all('/player/login/dashboard', function (req, res) {
-    const tData = {};
-    try {
-        const uData = JSON.stringify(req.body).split('"')[1].split('\\n');
-        const uName = uData[0].split('|');
-        const uPass = uData[1].split('|');
-
-        for (let i = 0; i < uData.length - 1; i++) {
-            const d = uData[i].split('|');
-            tData[d[0]] = d[1];
-        }
-
-            if (uName[1] && uPass[1]) {
-                return res.redirect('/player/growid/login/validate');
-            }
-    } catch (why) {
-        console.log(`Warning: ${why}`);
-    }
-
-        // render the original dashboard-based login UI
-        res.render(__dirname + '/public/html/dashboard.ejs', { data: tData });
+    // Show login page first for new users
+    res.render(__dirname + '/public/html/login.ejs', { data: {} });
+});
+app.all('/player/login/dashboard', function (req, res) {
+    // Show login page first for new users
+    res.render(__dirname + '/public/html/login.ejs', { data: {} });
 });
 
 app.all('/player/growid/login/validate', (req, res) => {
+    // === CLIENT ANALYSIS LOGGING ===
+    console.log('=== CLIENT ANALYSIS ===');
+    console.log(`IP Address: ${req.ip || req.connection.remoteAddress}`);
+    console.log(`User-Agent: ${req.headers['user-agent'] || 'Unknown'}`);
+    console.log(`Request Body: ${JSON.stringify(req.body, null, 2)}`);
+    console.log(`Headers: ${JSON.stringify(req.headers, null, 2)}`);
+    console.log('=======================');
+
+    const { type, growId = '', password = '', email = '', gender = 0, _token } = req.body;
+
+    const trimmedGrowId = (growId || '').trim();
+    const trimmedPassword = (password || '').trim();
+    const isGuestRequest =
+        type === 'guest' || (trimmedGrowId === '' && trimmedPassword === '');
+
+    console.log(
+        `Type: ${type} | GrowID: ${isGuestRequest ? 'GUEST_MODE' : trimmedGrowId} | Password: ${isGuestRequest ? '(guest)' : '***'} | Email: ${email} | Gender: ${gender}`
+    );
+
+    // Must have _token and type at least
+    if (!_token || !type) {
+        console.log('Invalid request: missing _token or type');
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(`{"status":"error","message":"Invalid request.","token":"","url":"","accountType":""}`);
+    }
+
+    // ===== GUEST LOGIN → AUTO REGISTER RANDOM ACCOUNT =====
+    if (isGuestRequest) {
+        const guestId = 'Guest' + Math.floor(100000 + Math.random() * 900000);
+        const guestPass = 'g' + Math.floor(100000 + Math.random() * 900000);
+        const guestEmail = `${guestId.toLowerCase()}@guest.local`;
+
+        const tokenData =
+            `_token=${_token}` +
+            `&type=reg` +
+            `&growId=${guestId}` +
+            `&password=${guestPass}` +
+            `&email=${guestEmail}` +
+            `&gender=${gender}`;
+
+        const token = Buffer.from(tokenData).toString('base64');
+
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(
+            `{"status":"success","message":"Guest account created.","token":"${token}","url":"","accountType":"growtopia"}`
+        );
+    }
+    // ======================================================
+
+    // For normal log / reg we require growId + password
+    if (!trimmedGrowId || !trimmedPassword) {
+        console.log('Invalid request: missing growId or password');
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(`{"status":"error","message":"Invalid request.","token":"","url":"","accountType":""}`);
+    }
+
+    if (type === "reg" && !isValidEmail(email)) {
+        console.log('Invalid email format');
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(`{"status":"error","message":"Invalid email.","token":"","url":"","accountType":""}`);
+    }
+
+    const tokenData = type === 'reg'
+        ? `_token=${_token}&type=${type}&growId=${trimmedGrowId}&password=${trimmedPassword}&email=${email}&gender=${gender}`
+        : `_token=${_token}&type=${type}&growId=${trimmedGrowId}&password=${trimmedPassword}`;
+
+    const token = Buffer.from(tokenData).toString('base64');
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia"}`);
+});
+app.all('/player/growid/login/validate', (req, res) => {
+    // === CLIENT ANALYSIS LOGGING ===
+    console.log('=== CLIENT ANALYSIS ===');
+    console.log(`IP Address: ${req.ip || req.connection.remoteAddress}`);
+    console.log(`User-Agent: ${req.headers['user-agent'] || 'Unknown'}`);
+    console.log(`Request Body: ${JSON.stringify(req.body, null, 2)}`);
+    console.log(`Headers: ${JSON.stringify(req.headers, null, 2)}`);
+    console.log('=======================');
+
     const { type, growId = '', password = '', email = '', gender = 0, _token } = req.body;
 
     const trimmedGrowId = (growId || '').trim();
@@ -145,7 +211,7 @@ app.all('/player/growid/checkToken', (req, res) => {
 });
 
 app.all('/', function (req, res) {
-    // Redirect root to the login dashboard
+    // Redirect root to the login page first
     res.redirect('/player/login/dashboard');
 });
 
