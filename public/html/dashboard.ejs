@@ -12,16 +12,15 @@
         /* --- RESET & BASE --- */
         html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
         
-        /* Font: Fredoka matches the playful 'game' vibe better than Inter */
         body { 
             font-family: 'Fredoka', sans-serif; 
-            background-color: transparent; /* Allows client background to show through if needed */
+            background-color: transparent; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
         }
 
-        /* --- LAUNCHER CARD DESIGN --- */
+        /* --- LAUNCHER CARD --- */
         .launcher-card {
             background: linear-gradient(180deg, rgba(30, 41, 59, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
             border: 2px solid rgba(255, 255, 255, 0.1);
@@ -29,58 +28,57 @@
             backdrop-filter: blur(10px);
         }
 
-        /* --- GROWTOPIA DIALOG STYLE FOR ACCOUNTS --- */
+        /* --- COMPACT GROWTOPIA BOX STYLE --- */
         .gt-account-box {
             background-color: #ECD9B5; /* Classic GT Tan */
-            border: 3px solid #6F4E37; /* Classic GT Brown */
-            box-shadow: inset 2px 2px 0px rgba(255,255,255,0.3), inset -2px -2px 0px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.3);
+            border: 2px solid #6F4E37; /* Classic GT Brown */
+            box-shadow: inset 1px 1px 0px rgba(255,255,255,0.3), inset -1px -1px 0px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.3);
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .gt-account-box:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
             filter: brightness(0.9);
         }
 
-        /* Custom Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 5px; }
-        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); margin: 5px; border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+        /* Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); margin: 2px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
 <body>
 
     <form id="hiddenLoginForm" method="post" action="/player/growid/login/validate" class="hidden">
         <input name="type" value="log" type="hidden" />
-        <input name="_token" value="{}" type="hidden" /> <input id="form_growId" name="growId" type="hidden" />
+        <input name="_token" value="{}" type="hidden" />
+        <input id="form_growId" name="growId" type="hidden" />
         <input id="form_password" name="password" type="hidden" />
         <input name="mac" value="<%= data.mac || '' %>" type="hidden" />
         <input name="platformID" value="<%= data.platformID || '' %>" type="hidden" />
     </form>
 
-    <div class="launcher-card w-[340px] rounded-2xl overflow-hidden relative flex flex-col">
+    <div class="launcher-card w-[320px] rounded-xl overflow-hidden relative flex flex-col">
         
-        <div class="p-5 pb-3 text-center border-b border-white/5 bg-slate-800/50">
-            <h1 class="text-2xl font-semibold text-white tracking-wide drop-shadow-md">
-                Welcome Back
+        <div class="p-3 text-center border-b border-white/5 bg-slate-800/50">
+            <h1 class="text-lg font-semibold text-white tracking-wide drop-shadow-md">
+                Select Profile
             </h1>
-            <p class="text-xs text-slate-400 mt-1">Select a profile to jump into the world</p>
         </div>
 
-        <div class="p-4 bg-slate-900/50 flex-1 min-h-[220px]">
-            <div id="accounts-container" class="grid grid-cols-2 gap-3 max-h-[240px] overflow-y-auto custom-scroll pr-1">
+        <div class="p-3 bg-slate-900/50 flex-1 min-h-[180px]">
+            <div id="accounts-container" class="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto custom-scroll pr-1">
                 </div>
         </div>
 
-        <div class="p-4 bg-slate-800/80 border-t border-white/5 space-y-2">
-            <button id="btn-manual" class="w-full group relative flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-semibold py-2.5 rounded-xl shadow-lg shadow-blue-900/30 transition-all transform hover:-translate-y-0.5">
-                <i class="fas fa-plus-circle text-blue-200 group-hover:text-white transition-colors"></i>
-                <span>Login New Account</span>
+        <div class="p-3 bg-slate-800/80 border-t border-white/5 space-y-2">
+            <button id="btn-manual" class="w-full group flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold py-2 rounded-lg shadow-lg transition-all">
+                <i class="fas fa-plus-circle text-blue-200"></i>
+                <span>Login New</span>
             </button>
             
-            <button onclick="Accounts.clear()" class="w-full text-[11px] text-slate-500 hover:text-red-400 font-medium py-1 transition-colors flex items-center justify-center gap-1">
-                <i class="fas fa-trash-alt"></i> Forget All Devices
+            <button onclick="Accounts.clear()" class="w-full text-[10px] text-slate-500 hover:text-red-400 font-medium py-0.5 transition-colors">
+                Clear All
             </button>
         </div>
     </div>
@@ -90,10 +88,7 @@
         const clientParams = '?mac=<%= data.mac || "" %>&platformID=<%= data.platformID || "" %>';
         
         document.addEventListener('DOMContentLoaded', () => {
-            // Load Accounts
             const list = Accounts.getAll();
-            
-            // Redirect if empty
             if (list.length === 0) {
                 window.location.replace('/player/login/form' + clientParams);
                 return;
@@ -101,30 +96,30 @@
 
             const container = document.getElementById('accounts-container');
             
-            // RENDER LOOP
             list.forEach(acc => {
                 const el = document.createElement('div');
                 
-                // The "Growtopia Style" Box
-                el.className = 'gt-account-box rounded-lg p-2 flex flex-col items-center justify-center aspect-[4/3] relative cursor-pointer group hover:brightness-110';
+                // --- COMPACT STYLING ---
+                // h-20: Fixed height (smaller than before)
+                // p-1.5: Reduced padding
+                el.className = 'gt-account-box rounded-md p-1.5 flex flex-col items-center justify-center h-20 relative cursor-pointer group hover:brightness-110';
                 
                 el.innerHTML = `
-                    <div onclick="event.stopPropagation(); Accounts.remove('${acc.growId}')" class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/20 rounded">
-                        <i class="fas fa-times text-[#6F4E37] text-xs"></i>
+                    <div onclick="event.stopPropagation(); Accounts.remove('${acc.growId}')" class="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/20 rounded">
+                        <i class="fas fa-times text-[#6F4E37] text-[10px]"></i>
                     </div>
 
-                    <div class="w-12 h-12 mb-1 transition-transform group-hover:scale-110 duration-200">
+                    <div class="w-8 h-8 mb-1 transition-transform group-hover:scale-105 duration-200">
                         <img src="/html/p.png" alt="User" class="w-full h-full object-contain drop-shadow-sm">
                     </div>
                     
-                    <div class="w-full text-center px-1">
-                        <div class="text-[#4A2E19] font-bold text-sm uppercase truncate leading-tight drop-shadow-sm">
+                    <div class="w-full text-center px-0.5">
+                        <div class="text-[#4A2E19] font-bold text-xs uppercase truncate leading-tight drop-shadow-sm">
                             ${acc.growId}
                         </div>
                     </div>
                 `;
 
-                // Click Handler
                 el.onclick = () => {
                     document.getElementById('form_growId').value = acc.growId;
                     try {
@@ -138,7 +133,6 @@
                 container.appendChild(el);
             });
 
-            // Manual Login
             document.getElementById('btn-manual').onclick = () => window.location.href = '/player/login/form' + clientParams;
         });
     </script>
