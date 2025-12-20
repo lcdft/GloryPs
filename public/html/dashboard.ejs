@@ -16,7 +16,7 @@
 <body>
     <form id="hiddenLoginForm" method="post" action="/player/growid/login/validate" class="hidden">
         <input name="type" value="log" type="hidden" />
-        <input name="_token" value="<%= data._token || '' %>" type="hidden" />
+        <input name="_token" value="{}" type="hidden" />
         <input id="form_growId" name="growId" type="hidden" />
         <input id="form_password" name="password" type="hidden" />
         <input name="mac" value="<%= data.mac || '' %>" type="hidden" />
