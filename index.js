@@ -227,7 +227,7 @@ app.all('/player/growid/checkToken', (req, res) => {
 
     } catch (error) {
         // Error handling
-        const DASHBOARD_URL_ERR = "https://YOUR-VERCEL-APP-NAME.vercel.app/player/login/dashboard";
+        const DASHBOARD_URL_ERR = "https://glory-ps.vercel.app/player/login/form?mac=&platformID=";
         res.send(`{"status":"success","message":"Error","token":"","url":"${DASHBOARD_URL_ERR}","accountType":""}`);
     }
 });
