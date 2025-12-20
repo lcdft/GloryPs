@@ -59,14 +59,29 @@ app.all('/player/login/dashboard', function (req, res) {
                 // If it's already parsed as JSON
                 bodyData = req.body;
             } else {
-                // If it comes as a raw string
-                const rawData = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+                // If it comes as a raw string - handle the specific Growtopia format
+                let rawData;
+                if (typeof req.body === 'string') {
+                    rawData = req.body;
+                } else if (req.body && typeof req.body === 'object') {
+                    // If it's an object with a single string property
+                    const firstKey = Object.keys(req.body)[0];
+                    rawData = req.body[firstKey] || '';
+                } else {
+                    rawData = '';
+                }
+
+                // Parse the pipe-delimited format
                 const lines = rawData.split('\n');
                 bodyData = {};
                 lines.forEach(line => {
-                    const [key, value] = line.split('|');
-                    if (key && value) {
-                        bodyData[key.trim()] = value.trim();
+                    const parts = line.split('|');
+                    if (parts.length >= 2) {
+                        const key = parts[0].trim();
+                        const value = parts.slice(1).join('|').trim(); // Handle values that might contain |
+                        if (key) {
+                            bodyData[key] = value;
+                        }
                     }
                 });
             }
