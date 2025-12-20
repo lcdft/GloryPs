@@ -48,12 +48,116 @@ app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 
 app.all('/player/login/dashboard', function (req, res) {
-    // Show login page first for new users
-    res.render(__dirname + '/public/html/login.ejs', { data: {} });
+    // Parse the Growtopia client data format
+    let clientData = {};
+    try {
+        // Check if this is a Growtopia client request (has valKey parameter)
+        if (req.query.valKey || Object.keys(req.body).length > 0) {
+            // Parse the request body which comes in the format: "key1|value1\nkey2|value2\n..."
+            let bodyData;
+            if (typeof req.body === 'object' && req.body !== null) {
+                // If it's already parsed as JSON
+                bodyData = req.body;
+            } else {
+                // If it comes as a raw string
+                const rawData = req.body || '';
+                const lines = rawData.split('\n');
+                bodyData = {};
+                lines.forEach(line => {
+                    const [key, value] = line.split('|');
+                    if (key && value) {
+                        bodyData[key.trim()] = value.trim();
+                    }
+                });
+            }
+
+            // Extract platformID and mac from the client data
+            const platformID = bodyData.platformID || '0';
+            const mac = bodyData.mac || '02:00:00:00:00:00';
+
+            console.log('=== GROWTOPIA CLIENT DETECTED ===');
+            console.log(`Platform ID: ${platformID}`);
+            console.log(`MAC Address: ${mac}`);
+            console.log(`Full client data:`, bodyData);
+
+            // === MOBILE CHEAT DETECTION ===
+            if (config.block_cheats_mobile_mac) {
+                // Check if this is a mobile platform (iOS or Android)
+                if (platformID === '2' || platformID === '4') {
+                    // Mobile platforms must have the default MAC address
+                    if (mac !== '02:00:00:00:00:00') {
+                        console.log(`CHEAT DETECTED: Mobile platform ${platformID} with invalid MAC address: ${mac}`);
+                        res.setHeader('Content-Type', 'text/html');
+                        return res.send(`{"status":"error","message":"Cheats detected Logon fail: please login using the normal growtopia client","token":"","url":"","accountType":""}`);
+                    }
+                }
+            }
+
+            // If no cheats detected, proceed with normal login flow
+            clientData = bodyData;
+        }
+    } catch (error) {
+        console.error('Error parsing Growtopia client data:', error.message);
+    }
+
+    // For web browsers, show login page
+    res.render(__dirname + '/public/html/login.ejs', { data: clientData });
 });
 app.all('/player/login/dashboard', function (req, res) {
-    // Show login page first for new users
-    res.render(__dirname + '/public/html/login.ejs', { data: {} });
+    // Parse the Growtopia client data format
+    let clientData = {};
+    try {
+        // Check if this is a Growtopia client request (has valKey parameter)
+        if (req.query.valKey || Object.keys(req.body).length > 0) {
+            // Parse the request body which comes in the format: "key1|value1\nkey2|value2\n..."
+            let bodyData;
+            if (typeof req.body === 'object' && req.body !== null) {
+                // If it's already parsed as JSON
+                bodyData = req.body;
+            } else {
+                // If it comes as a raw string
+                const rawData = req.body || '';
+                const lines = rawData.split('\n');
+                bodyData = {};
+                lines.forEach(line => {
+                    const [key, value] = line.split('|');
+                    if (key && value) {
+                        bodyData[key.trim()] = value.trim();
+                    }
+                });
+            }
+
+            // Extract platformID and mac from the client data
+            const platformID = bodyData.platformID || '0';
+            const mac = bodyData.mac || '02:00:00:00:00:00';
+
+            console.log('=== GROWTOPIA CLIENT DETECTED ===');
+            console.log(`Platform ID: ${platformID}`);
+            console.log(`MAC Address: ${mac}`);
+            console.log(`Full client data:`, bodyData);
+
+            // === MOBILE CHEAT DETECTION ===
+            if (config.block_cheats_mobile_mac) {
+                // Check if this is a mobile platform (iOS or Android)
+                if (platformID === '2' || platformID === '4') {
+                    // Mobile platforms must have the default MAC address
+                    if (mac !== '02:00:00:00:00:00') {
+                        console.log(`CHEAT DETECTED: Mobile platform ${platformID} with invalid MAC address: ${mac}`);
+                        res.setHeader('Content-Type', 'text/html');
+                        return res.send(`{"status":"error","message":"Cheats detected Logon fail: please login using the normal growtopia client","token":"","url":"","accountType":""}`);
+                    }
+                }
+            }
+
+            // If no cheats detected, proceed with normal login flow
+            clientData = bodyData;
+        }
+    } catch (error) {
+        console.error('Error parsing Growtopia client data:', error.message);
+    }
+
+    // For web browsers, show login page
+    res.render(__dirname + '/public/html/login.ejs', { data: clientData });
 });
 
 app.all('/player/growid/login/validate', (req, res) => {
