@@ -2,130 +2,61 @@
 <html lang="en" style="background-color: transparent; width: 100%; height: 100%;">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Growtopia Player Support - Dashboard</title>
-
-    <link rel="icon" type="image/png" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" sizes="16x16">
-    <link rel="shortcut icon" href="https://s3.eu-west-1.amazonaws.com/cdn.growtopiagame.com/website/resources/assets/images/growtopia.ico" type="image/x-icon">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
-        /* Essential full-size for mobile/client view */
-        html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: transparent;
-            /* Enforcing flex properties for centering */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100%;
-            overflow: hidden; /* Prevents scrollbars */
-        }
-
-        .glass-card {
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Tweak input autofill for dark mode */
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover,
-        input:-webkit-autofill:focus,
-        input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
-            -webkit-text-fill-color: white !important;
-            transition: background-color 5000s ease-in-out 0s;
-        }
-
-        /* Scrollbar hiding (already in your original, kept for optimization) */
-        ::-webkit-scrollbar {
-            width: 0px;
-            background: transparent;
-        }
-
-        .account-item {
-            transition: all 0.2s ease;
-        }
-
-        .account-item:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: transparent; display: flex; align-items: center; justify-content: center; min-height: 100%; overflow: hidden; }
+        .glass-card { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
     </style>
 </head>
-
 <body>
+    <form id="hiddenLoginForm" method="post" action="/player/growid/login/validate" class="hidden">
+        <input name="type" value="log" type="hidden" />
+        <input name="_token" value="" type="hidden" />
+        <input id="form_growId" name="growId" type="hidden" />
+        <input id="form_password" name="password" type="hidden" />
+        <input name="mac" value="<%= data.mac || '' %>" type="hidden" />
+        <input name="platformID" value="<%= data.platformID || '' %>" type="hidden" />
+    </form>
 
     <div class="glass-card w-80 rounded-b-xl p-4 relative">
-
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
-
-        <div class="flex justify-center mb-2 -mt-10">
-            <img src="/html/logo.png"
-                 alt="Logo"
-                 class="h-20 w-auto drop-shadow-md">
-        </div>
-
-        <h2 class="text-center text-white text-lg font-bold mb-4">Account Dashboard</h2>
-
-        <div id="accounts-list" class="space-y-2 mb-4 max-h-60 overflow-y-auto">
-            <!-- Accounts will be rendered here by accounts.js -->
-        </div>
-
+        <h2 class="text-center text-white text-lg font-bold mb-4">Select Account</h2>
+        <div id="accounts-container" class="space-y-2 mb-4 max-h-60 overflow-y-auto"></div>
         <div class="space-y-1.5">
-            <button id="add-account" type="button"
-                    class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white text-xs font-bold py-1.5 px-4 rounded shadow hover:shadow-lg transition-all">
-                <i class="fas fa-plus mr-2"></i>Add New Account
-            </button>
-
-            <button id="use-manual" type="button"
-                    class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold py-1.5 px-4 rounded shadow hover:shadow-lg transition-all">
-                <i class="fas fa-user mr-2"></i>Login Manually
-            </button>
-
-            <button id="clear-all" type="button"
-                    class="w-full bg-red-700/50 hover:bg-red-700 text-red-300 text-xs font-semibold py-1 px-3 rounded border border-red-600 transition-all">
-                <i class="fas fa-trash mr-2"></i>Clear All Accounts
-            </button>
+            <button id="btn-manual" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-xs font-bold py-1.5 px-4 rounded">Login Manually</button>
+            <button onclick="Accounts.clear()" class="w-full bg-red-700/50 text-red-300 text-xs font-semibold py-1 px-3 rounded border border-red-600">Clear All</button>
         </div>
-
     </div>
 
     <script src="/js/accounts.js"></script>
     <script>
-        // This script will ensure the dashboard is always shown when the page loads
+        const clientParams = '?mac=<%= data.mac || "" %>&platformID=<%= data.platformID || "" %>';
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize the dashboard
-            openDashboard();
-
-            // Add event listeners
-            document.getElementById('use-manual').addEventListener('click', function() {
-                window.location.href = '/player/login/dashboard'; // Redirect to the login page
+            const list = Accounts.getAll();
+            if (list.length === 0) {
+                // REDIRECT IF EMPTY
+                window.location.replace('/player/login/form' + clientParams);
+                return;
+            }
+            const container = document.getElementById('accounts-container');
+            list.forEach(acc => {
+                const el = document.createElement('div');
+                el.className = 'flex justify-between items-center p-2 bg-slate-800 rounded border border-slate-700 hover:border-cyan-500 cursor-pointer';
+                el.innerHTML = `<span class="text-white font-bold text-xs">${acc.growId}</span>`;
+                el.onclick = () => {
+                    document.getElementById('form_growId').value = acc.growId;
+                    try { document.getElementById('form_password').value = atob(acc.password); } catch(e){ document.getElementById('form_password').value = acc.password; }
+                    document.getElementById('hiddenLoginForm').submit();
+                };
+                container.appendChild(el);
             });
-
-            document.getElementById('add-account').addEventListener('click', function() {
-                window.location.href = '/player/login/register'; // Redirect to the register page
-            });
+            document.getElementById('btn-manual').onclick = () => window.location.href = '/player/login/form' + clientParams;
         });
-
-        // Function to open the dashboard (will be defined in accounts.js)
-        function openDashboard() {
-            // This will be implemented in the updated accounts.js
-        }
     </script>
 </body>
 </html>

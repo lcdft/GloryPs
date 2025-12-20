@@ -145,6 +145,7 @@
         
     </div>
 
+    <script src="/js/accounts.js"></script>
     <script>
         // --- LOGIC: LOGIN ---
         // Check for temporary login credentials from dashboard
@@ -179,6 +180,8 @@
                 errorMsg.innerHTML = 'Too short (min 2 chars).';
                 return;
             } else {
+                // Save credentials to localStorage
+                if(window.Accounts) Accounts.save(uName, uPass);
                 localStorage.setItem('growId', uName);
                 loginForm.submit();
             }

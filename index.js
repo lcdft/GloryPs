@@ -47,83 +47,42 @@ app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 
+// --- UPDATED ROUTE: DASHBOARD (Main Entry) ---
 app.all('/player/login/dashboard', function (req, res) {
-    // Parse the Growtopia client data format
+    // 1. Parse Growtopia Body (Logic preserved from original file)
     let clientData = {};
-    try {
-        // Check if this is a Growtopia client request (has valKey parameter or body data)
-        if (req.query.valKey || (req.body && Object.keys(req.body).length > 0)) {
+    let rawData = '';
+    if (typeof req.body === 'object' && req.body !== null && !Array.isArray(req.body)) {
+        if (req.body.platformID || req.body.tankIDName) { clientData = req.body; }
+        else { const keys = Object.keys(req.body); if (keys.length > 0) rawData = keys[0]; }
+    } else if (typeof req.body === 'string') { rawData = req.body; }
 
-            let bodyData = {};
-            let rawData = '';
-
-            // DETECT DATA FORMAT
-            if (typeof req.body === 'object' && req.body !== null && !Array.isArray(req.body)) {
-                // CHECK: Is the data "Clean" (parsed correctly) or "Messy" (stuck in the key)?
-                if (req.body.platformID || req.body.tankIDName) {
-                    // It is CLEAN. Use as is.
-                    bodyData = req.body;
-                } else {
-                    // It is MESSY (The issue you are facing).
-                    // The data is likely trapped in the first key of the object.
-                    const keys = Object.keys(req.body);
-                    if (keys.length > 0) {
-                        // Extract the giant string from the first key
-                        rawData = keys[0];
-                    }
-                }
-            } else if (typeof req.body === 'string') {
-                rawData = req.body;
-            }
-
-            // If we found raw string data (Messy), parse it manually now
-            if (rawData && Object.keys(bodyData).length === 0) {
-                 // Clean up newlines if they are literal strings (common in some raw logs)
-                const lines = rawData.split(/\r?\n|\\n/);
-                lines.forEach(line => {
-                    const parts = line.split('|');
-                    if (parts.length >= 2) {
-                        const key = parts[0].trim();
-                        // Join back the rest in case the value contains pipes
-                        const value = parts.slice(1).join('|').trim();
-                        if (key) {
-                            bodyData[key] = value;
-                        }
-                    }
-                });
-            }
-
-            // Extract platformID and mac from the client data
-            // Default to '0' ONLY if extraction fails
-            const platformID = bodyData.platformID || '0';
-            const mac = bodyData.mac || '02:00:00:00:00:00';
-
-            console.log('=== GROWTOPIA CLIENT DETECTED ===');
-            console.log(`Platform ID: ${platformID}`);
-            console.log(`MAC Address: ${mac}`);
-
-            // === MOBILE CHEAT DETECTION ===
-            if (config.block_cheats_mobile_mac) {
-                // Check if this is a mobile platform (iOS or Android)
-                // ENSURE platformID is treated as a string for comparison
-                if (String(platformID) === '2' || String(platformID) === '4') {
-                    // Mobile platforms must have the default MAC address
-                    if (mac !== '02:00:00:00:00:00') {
-                        console.log(`CHEAT DETECTED: Mobile platform ${platformID} with invalid MAC address: ${mac}`);
-                        // Show cheat detection page
-                        return res.render(__dirname + '/public/html/cheat_detected.ejs', { data: bodyData });
-                    }
-                }
-            }
-
-            // If no cheats detected, proceed with normal login flow
-            clientData = bodyData;
-        }
-    } catch (error) {
-        console.error('Error parsing Growtopia client data:', error.message);
+    if (rawData && Object.keys(clientData).length === 0) {
+        const lines = rawData.split(/\r?\n|\\n/);
+        lines.forEach(line => {
+            const parts = line.split('|');
+            if (parts.length >= 2) clientData[parts[0].trim()] = parts.slice(1).join('|').trim();
+        });
     }
 
-    // For web browsers, show login page
+    // 2. Cheat Detection (Preserved)
+    const platformID = clientData.platformID || '0';
+    const mac = clientData.mac || '02:00:00:00:00:00';
+    if (config.block_cheats_mobile_mac) {
+        if ((String(platformID) === '2' || String(platformID) === '4') && mac !== '02:00:00:00:00:00') {
+            console.log(`CHEAT DETECTED: ${mac}`);
+            return res.render(__dirname + '/public/html/cheat_detected.ejs', { data: clientData });
+        }
+    }
+
+    // 3. Render Dashboard
+    res.render(__dirname + '/public/html/dashboard.ejs', { data: clientData });
+});
+
+// --- NEW ROUTE: LOGIN FORM (Input Fields) ---
+app.all('/player/login/form', function (req, res) {
+    // Merge body and query params to pass client data (mac, platformID)
+    let clientData = { ...req.body, ...req.query };
     res.render(__dirname + '/public/html/login.ejs', { data: clientData });
 });
 
