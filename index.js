@@ -53,32 +53,39 @@ app.all('/player/login/dashboard', function (req, res) {
     try {
         // Check if this is a Growtopia client request (has valKey parameter or body data)
         if (req.query.valKey || (req.body && Object.keys(req.body).length > 0)) {
-            // Parse the request body which comes in the format: "key1|value1\nkey2|value2\n..."
-            let bodyData;
-            if (typeof req.body === 'object' && req.body !== null && !Array.isArray(req.body)) {
-                // If it's already parsed as JSON
-                bodyData = req.body;
-            } else {
-                // If it comes as a raw string - handle the specific Growtopia format
-                let rawData;
-                if (typeof req.body === 'string') {
-                    rawData = req.body;
-                } else if (req.body && typeof req.body === 'object') {
-                    // If it's an object with a single string property
-                    const firstKey = Object.keys(req.body)[0];
-                    rawData = req.body[firstKey] || '';
-                } else {
-                    rawData = '';
-                }
 
-                // Parse the pipe-delimited format
-                const lines = rawData.split('\n');
-                bodyData = {};
+            let bodyData = {};
+            let rawData = '';
+
+            // DETECT DATA FORMAT
+            if (typeof req.body === 'object' && req.body !== null && !Array.isArray(req.body)) {
+                // CHECK: Is the data "Clean" (parsed correctly) or "Messy" (stuck in the key)?
+                if (req.body.platformID || req.body.tankIDName) {
+                    // It is CLEAN. Use as is.
+                    bodyData = req.body;
+                } else {
+                    // It is MESSY (The issue you are facing).
+                    // The data is likely trapped in the first key of the object.
+                    const keys = Object.keys(req.body);
+                    if (keys.length > 0) {
+                        // Extract the giant string from the first key
+                        rawData = keys[0];
+                    }
+                }
+            } else if (typeof req.body === 'string') {
+                rawData = req.body;
+            }
+
+            // If we found raw string data (Messy), parse it manually now
+            if (rawData && Object.keys(bodyData).length === 0) {
+                 // Clean up newlines if they are literal strings (common in some raw logs)
+                const lines = rawData.split(/\r?\n|\\n/);
                 lines.forEach(line => {
                     const parts = line.split('|');
                     if (parts.length >= 2) {
                         const key = parts[0].trim();
-                        const value = parts.slice(1).join('|').trim(); // Handle values that might contain |
+                        // Join back the rest in case the value contains pipes
+                        const value = parts.slice(1).join('|').trim();
                         if (key) {
                             bodyData[key] = value;
                         }
@@ -87,22 +94,23 @@ app.all('/player/login/dashboard', function (req, res) {
             }
 
             // Extract platformID and mac from the client data
+            // Default to '0' ONLY if extraction fails
             const platformID = bodyData.platformID || '0';
             const mac = bodyData.mac || '02:00:00:00:00:00';
 
             console.log('=== GROWTOPIA CLIENT DETECTED ===');
             console.log(`Platform ID: ${platformID}`);
             console.log(`MAC Address: ${mac}`);
-            console.log(`Full client data:`, bodyData);
 
             // === MOBILE CHEAT DETECTION ===
             if (config.block_cheats_mobile_mac) {
                 // Check if this is a mobile platform (iOS or Android)
-                if (platformID === '2' || platformID === '4') {
+                // ENSURE platformID is treated as a string for comparison
+                if (String(platformID) === '2' || String(platformID) === '4') {
                     // Mobile platforms must have the default MAC address
                     if (mac !== '02:00:00:00:00:00') {
                         console.log(`CHEAT DETECTED: Mobile platform ${platformID} with invalid MAC address: ${mac}`);
-                        // Show cheat detection page instead of JSON response
+                        // Show cheat detection page
                         return res.render(__dirname + '/public/html/cheat_detected.ejs', { data: bodyData });
                     }
                 }
