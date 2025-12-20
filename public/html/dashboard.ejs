@@ -3,45 +3,84 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Launcher Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
-        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: transparent; display: flex; align-items: center; justify-content: center; min-height: 100%; overflow: hidden; }
-        .glass-card { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
+        /* --- RESET & BASE --- */
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
         
+        /* Font: Fredoka matches the playful 'game' vibe better than Inter */
+        body { 
+            font-family: 'Fredoka', sans-serif; 
+            background-color: transparent; /* Allows client background to show through if needed */
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        /* --- LAUNCHER CARD DESIGN --- */
+        .launcher-card {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        /* --- GROWTOPIA DIALOG STYLE FOR ACCOUNTS --- */
+        .gt-account-box {
+            background-color: #ECD9B5; /* Classic GT Tan */
+            border: 3px solid #6F4E37; /* Classic GT Brown */
+            box-shadow: inset 2px 2px 0px rgba(255,255,255,0.3), inset -2px -2px 0px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.3);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .gt-account-box:active {
+            transform: scale(0.95);
+            filter: brightness(0.9);
+        }
+
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-        ::-webkit-scrollbar-thumb { background: #8B5E3C; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); margin: 5px; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
 <body>
+
     <form id="hiddenLoginForm" method="post" action="/player/growid/login/validate" class="hidden">
         <input name="type" value="log" type="hidden" />
-        <input name="_token" value="{}" type="hidden" />
-        <input id="form_growId" name="growId" type="hidden" />
+        <input name="_token" value="{}" type="hidden" /> <input id="form_growId" name="growId" type="hidden" />
         <input id="form_password" name="password" type="hidden" />
         <input name="mac" value="<%= data.mac || '' %>" type="hidden" />
         <input name="platformID" value="<%= data.platformID || '' %>" type="hidden" />
     </form>
 
-    <div class="glass-card w-80 rounded-b-xl p-4 relative">
-        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
+    <div class="launcher-card w-[340px] rounded-2xl overflow-hidden relative flex flex-col">
         
-        <h2 class="text-center text-white text-lg font-bold mb-4">Select Account</h2>
-        
-        <div id="accounts-container" class="grid grid-cols-2 gap-2 mb-4 max-h-60 overflow-y-auto px-1">
-            </div>
+        <div class="p-5 pb-3 text-center border-b border-white/5 bg-slate-800/50">
+            <h1 class="text-2xl font-semibold text-white tracking-wide drop-shadow-md">
+                Welcome Back
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">Select a profile to jump into the world</p>
+        </div>
 
-        <div class="space-y-1.5 pt-2 border-t border-slate-700">
-            <button id="btn-manual" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold py-2 px-4 rounded shadow transition-all">
-                Login Manually
+        <div class="p-4 bg-slate-900/50 flex-1 min-h-[220px]">
+            <div id="accounts-container" class="grid grid-cols-2 gap-3 max-h-[240px] overflow-y-auto custom-scroll pr-1">
+                </div>
+        </div>
+
+        <div class="p-4 bg-slate-800/80 border-t border-white/5 space-y-2">
+            <button id="btn-manual" class="w-full group relative flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-semibold py-2.5 rounded-xl shadow-lg shadow-blue-900/30 transition-all transform hover:-translate-y-0.5">
+                <i class="fas fa-plus-circle text-blue-200 group-hover:text-white transition-colors"></i>
+                <span>Login New Account</span>
             </button>
-            <button onclick="Accounts.clear()" class="w-full bg-red-700/50 hover:bg-red-700/70 text-red-200 text-xs font-semibold py-1 px-3 rounded border border-red-600 transition-all">
-                Clear All
+            
+            <button onclick="Accounts.clear()" class="w-full text-[11px] text-slate-500 hover:text-red-400 font-medium py-1 transition-colors flex items-center justify-center gap-1">
+                <i class="fas fa-trash-alt"></i> Forget All Devices
             </button>
         </div>
     </div>
@@ -51,8 +90,10 @@
         const clientParams = '?mac=<%= data.mac || "" %>&platformID=<%= data.platformID || "" %>';
         
         document.addEventListener('DOMContentLoaded', () => {
+            // Load Accounts
             const list = Accounts.getAll();
             
+            // Redirect if empty
             if (list.length === 0) {
                 window.location.replace('/player/login/form' + clientParams);
                 return;
@@ -60,25 +101,30 @@
 
             const container = document.getElementById('accounts-container');
             
+            // RENDER LOOP
             list.forEach(acc => {
                 const el = document.createElement('div');
                 
-                // --- STYLING: Box Layout ---
-                // flex-col: Stacks image above text INSIDE the box
-                // items-center: Centers everything
-                // aspect-[4/3]: Forces a nice rectangular box shape
-                el.className = 'relative flex flex-col items-center justify-center p-2 rounded-xl border-2 border-[#6F4E37] bg-[#ECD9B5] shadow-sm hover:brightness-110 cursor-pointer transition-all aspect-[4/3] group';
+                // The "Growtopia Style" Box
+                el.className = 'gt-account-box rounded-lg p-2 flex flex-col items-center justify-center aspect-[4/3] relative cursor-pointer group hover:brightness-110';
                 
                 el.innerHTML = `
-                    <img src="/html/p.png" alt="User" class="w-10 h-10 mb-1 drop-shadow-sm select-none">
-                    
-                    <span class="text-[#4A2E19] font-black text-xs uppercase tracking-wide drop-shadow-sm truncate w-full text-center">${acc.growId}</span>
+                    <div onclick="event.stopPropagation(); Accounts.remove('${acc.growId}')" class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/20 rounded">
+                        <i class="fas fa-times text-[#6F4E37] text-xs"></i>
+                    </div>
 
-                    <button onclick="event.stopPropagation(); Accounts.remove('${acc.growId}')" class="absolute top-0.5 right-0.5 w-5 h-5 flex items-center justify-center rounded-full text-[#6F4E37]/50 hover:text-red-600 hover:bg-black/5 transition-colors">
-                        <i class="fas fa-times text-[10px]"></i>
-                    </button>
+                    <div class="w-12 h-12 mb-1 transition-transform group-hover:scale-110 duration-200">
+                        <img src="/html/p.png" alt="User" class="w-full h-full object-contain drop-shadow-sm">
+                    </div>
+                    
+                    <div class="w-full text-center px-1">
+                        <div class="text-[#4A2E19] font-bold text-sm uppercase truncate leading-tight drop-shadow-sm">
+                            ${acc.growId}
+                        </div>
+                    </div>
                 `;
 
+                // Click Handler
                 el.onclick = () => {
                     document.getElementById('form_growId').value = acc.growId;
                     try {
@@ -92,6 +138,7 @@
                 container.appendChild(el);
             });
 
+            // Manual Login
             document.getElementById('btn-manual').onclick = () => window.location.href = '/player/login/form' + clientParams;
         });
     </script>
