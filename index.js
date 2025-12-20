@@ -87,8 +87,20 @@ app.all('/player/login/dashboard', function (req, res) {
                     // Mobile platforms must have the default MAC address
                     if (mac !== '02:00:00:00:00:00') {
                         console.log(`CHEAT DETECTED: Mobile platform ${platformID} with invalid MAC address: ${mac}`);
-                        res.setHeader('Content-Type', 'text/html');
-                        return res.send(`{"status":"error","message":"Cheats detected Logon fail: please login using the normal growtopia client","token":"","url":"","accountType":""}`);
+                        // Show cheat detection page instead of JSON response
+                        return res.render(__dirname + '/public/html/cheat_detected.ejs', { data: bodyData });
+                    }
+                }
+            }
+            // === MOBILE CHEAT DETECTION ===
+            if (config.block_cheats_mobile_mac) {
+                // Check if this is a mobile platform (iOS or Android)
+                if (platformID === '2' || platformID === '4') {
+                    // Mobile platforms must have the default MAC address
+                    if (mac !== '02:00:00:00:00:00') {
+                        console.log(`CHEAT DETECTED: Mobile platform ${platformID} with invalid MAC address: ${mac}`);
+                        // Show cheat detection page instead of JSON response
+                        return res.render(__dirname + '/public/html/cheat_detected.ejs', { data: bodyData });
                     }
                 }
             }
