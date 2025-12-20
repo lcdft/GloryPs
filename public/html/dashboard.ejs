@@ -11,6 +11,11 @@
         html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background-color: transparent; display: flex; align-items: center; justify-content: center; min-height: 100%; overflow: hidden; }
         .glass-card { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
+        
+        /* Custom Scrollbar for the account list */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); rounded: 4px; }
+        ::-webkit-scrollbar-thumb { background: #8B5E3C; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -25,42 +30,73 @@
 
     <div class="glass-card w-80 rounded-b-xl p-4 relative">
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
+        
         <h2 class="text-center text-white text-lg font-bold mb-4">Select Account</h2>
-        <div id="accounts-container" class="space-y-2 mb-4 max-h-60 overflow-y-auto"></div>
-        <div class="space-y-1.5">
-            <button id="btn-manual" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-xs font-bold py-1.5 px-4 rounded">Login Manually</button>
-            <button onclick="Accounts.clear()" class="w-full bg-red-700/50 text-red-300 text-xs font-semibold py-1 px-3 rounded border border-red-600">Clear All</button>
+        
+        <div id="accounts-container" class="space-y-3 mb-4 max-h-60 overflow-y-auto px-1">
+            </div>
+
+        <div class="space-y-1.5 pt-2 border-t border-slate-700">
+            <button id="btn-manual" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold py-2 px-4 rounded shadow transition-all">
+                Login Manually
+            </button>
+            <button onclick="Accounts.clear()" class="w-full bg-red-700/50 hover:bg-red-700/70 text-red-200 text-xs font-semibold py-1 px-3 rounded border border-red-600 transition-all">
+                Clear All
+            </button>
         </div>
     </div>
 
     <script src="/js/accounts.js"></script>
     <script>
         const clientParams = '?mac=<%= data.mac || "" %>&platformID=<%= data.platformID || "" %>';
+        
         document.addEventListener('DOMContentLoaded', () => {
             const list = Accounts.getAll();
+            
+            // Redirect if no accounts found
             if (list.length === 0) {
-                // REDIRECT IF EMPTY
                 window.location.replace('/player/login/form' + clientParams);
                 return;
             }
+
             const container = document.getElementById('accounts-container');
+            
             list.forEach(acc => {
                 const el = document.createElement('div');
-                el.className = 'flex justify-between items-center p-2 bg-slate-800 rounded border border-slate-700 hover:border-cyan-500 cursor-pointer';
-                el.innerHTML = `<span class="text-white font-bold text-xs">${acc.growId}</span>`;
+                
+                // --- STYLING: Growtopia Dialog Theme ---
+                // bg-[#ECD9B5]: Light Tan/Beige background
+                // border-[#6F4E37]: Dark Brown border
+                // rounded-xl: Curved edges
+                el.className = 'relative flex items-center p-2 rounded-xl border-2 border-[#6F4E37] bg-[#ECD9B5] shadow-md hover:brightness-110 cursor-pointer transition-all group';
+                
+                el.innerHTML = `
+                    <div class="flex-1 flex flex-col items-center justify-center">
+                        <img src="/html/p.png" alt="User" class="w-10 h-10 mb-1 drop-shadow-sm">
+                        
+                        <span class="text-[#4A2E19] font-black text-sm uppercase tracking-wide drop-shadow-sm">${acc.growId}</span>
+                    </div>
+
+                    <button onclick="event.stopPropagation(); Accounts.remove('${acc.growId}')" class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full text-[#6F4E37] hover:text-red-600 hover:bg-black/10 transition-colors">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                `;
+
+                // Click event to login
                 el.onclick = () => {
                     document.getElementById('form_growId').value = acc.growId;
                     try {
-                        // Decode the password from Base64 before submitting
+                        // Decode password if saved in base64
                         document.getElementById('form_password').value = atob(acc.password);
                     } catch(e) {
-                        // Fallback to plain text if decoding fails
                         document.getElementById('form_password').value = acc.password;
                     }
                     document.getElementById('hiddenLoginForm').submit();
                 };
+                
                 container.appendChild(el);
             });
+
             document.getElementById('btn-manual').onclick = () => window.location.href = '/player/login/form' + clientParams;
         });
     </script>
