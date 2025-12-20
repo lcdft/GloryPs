@@ -3,52 +3,22 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Launcher Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <style>
-        /* --- RESET & BASE --- */
-        html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: transparent; display: flex; align-items: center; justify-content: center; min-height: 100%; overflow: hidden; }
+        .glass-card { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
         
-        body { 
-            font-family: 'Fredoka', sans-serif; 
-            background-color: transparent; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-        }
-
-        /* --- LAUNCHER CARD --- */
-        .launcher-card {
-            background: linear-gradient(180deg, rgba(30, 41, 59, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-        }
-
-        /* --- COMPACT GROWTOPIA BOX STYLE --- */
-        .gt-account-box {
-            background-color: #ECD9B5; /* Classic GT Tan */
-            border: 2px solid #6F4E37; /* Classic GT Brown */
-            box-shadow: inset 1px 1px 0px rgba(255,255,255,0.3), inset -1px -1px 0px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.3);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .gt-account-box:active {
-            transform: scale(0.96);
-            filter: brightness(0.9);
-        }
-
-        /* Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); margin: 2px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #8B5E3C; border-radius: 4px; }
     </style>
 </head>
 <body>
-
     <form id="hiddenLoginForm" method="post" action="/player/growid/login/validate" class="hidden">
         <input name="type" value="log" type="hidden" />
         <input name="_token" value="{}" type="hidden" />
@@ -58,26 +28,19 @@
         <input name="platformID" value="<%= data.platformID || '' %>" type="hidden" />
     </form>
 
-    <div class="launcher-card w-[320px] rounded-xl overflow-hidden relative flex flex-col">
+    <div class="glass-card w-80 rounded-b-xl p-4 relative">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
         
-        <div class="p-3 text-center border-b border-white/5 bg-slate-800/50">
-            <h1 class="text-lg font-semibold text-white tracking-wide drop-shadow-md">
-                Select Profile
-            </h1>
-        </div>
+        <h2 class="text-center text-white text-lg font-bold mb-4">Select Account</h2>
+        
+        <div id="accounts-container" class="grid grid-cols-2 gap-2 mb-4 max-h-60 overflow-y-auto px-1">
+            </div>
 
-        <div class="p-3 bg-slate-900/50 flex-1 min-h-[180px]">
-            <div id="accounts-container" class="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto custom-scroll pr-1">
-                </div>
-        </div>
-
-        <div class="p-3 bg-slate-800/80 border-t border-white/5 space-y-2">
-            <button id="btn-manual" class="w-full group flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold py-2 rounded-lg shadow-lg transition-all">
-                <i class="fas fa-plus-circle text-blue-200"></i>
-                <span>Login New</span>
+        <div class="space-y-1.5 pt-2 border-t border-slate-700">
+            <button id="btn-manual" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold py-2 px-4 rounded shadow transition-all">
+                Login Manually
             </button>
-            
-            <button onclick="Accounts.clear()" class="w-full text-[10px] text-slate-500 hover:text-red-400 font-medium py-0.5 transition-colors">
+            <button onclick="Accounts.clear()" class="w-full bg-red-700/50 hover:bg-red-700/70 text-red-200 text-xs font-semibold py-1 px-3 rounded border border-red-600 transition-all">
                 Clear All
             </button>
         </div>
@@ -89,6 +52,7 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             const list = Accounts.getAll();
+            
             if (list.length === 0) {
                 window.location.replace('/player/login/form' + clientParams);
                 return;
@@ -99,25 +63,20 @@
             list.forEach(acc => {
                 const el = document.createElement('div');
                 
-                // --- COMPACT STYLING ---
-                // h-20: Fixed height (smaller than before)
-                // p-1.5: Reduced padding
-                el.className = 'gt-account-box rounded-md p-1.5 flex flex-col items-center justify-center h-20 relative cursor-pointer group hover:brightness-110';
+                // --- STYLING: Box Layout ---
+                // flex-col: Stacks image above text INSIDE the box
+                // items-center: Centers everything
+                // aspect-[4/3]: Forces a nice rectangular box shape
+                el.className = 'relative flex flex-col items-center justify-center p-2 rounded-xl border-2 border-[#6F4E37] bg-[#ECD9B5] shadow-sm hover:brightness-110 cursor-pointer transition-all aspect-[4/3] group';
                 
                 el.innerHTML = `
-                    <div onclick="event.stopPropagation(); Accounts.remove('${acc.growId}')" class="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/20 rounded">
-                        <i class="fas fa-times text-[#6F4E37] text-[10px]"></i>
-                    </div>
-
-                    <div class="w-8 h-8 mb-1 transition-transform group-hover:scale-105 duration-200">
-                        <img src="/html/p.png" alt="User" class="w-full h-full object-contain drop-shadow-sm">
-                    </div>
+                    <img src="/html/p.png" alt="User" class="w-10 h-10 mb-1 drop-shadow-sm select-none">
                     
-                    <div class="w-full text-center px-0.5">
-                        <div class="text-[#4A2E19] font-bold text-xs uppercase truncate leading-tight drop-shadow-sm">
-                            ${acc.growId}
-                        </div>
-                    </div>
+                    <span class="text-[#4A2E19] font-black text-xs uppercase tracking-wide drop-shadow-sm truncate w-full text-center">${acc.growId}</span>
+
+                    <button onclick="event.stopPropagation(); Accounts.remove('${acc.growId}')" class="absolute top-0.5 right-0.5 w-5 h-5 flex items-center justify-center rounded-full text-[#6F4E37]/50 hover:text-red-600 hover:bg-black/5 transition-colors">
+                        <i class="fas fa-times text-[10px]"></i>
+                    </button>
                 `;
 
                 el.onclick = () => {
