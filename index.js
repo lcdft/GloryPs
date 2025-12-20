@@ -3,9 +3,22 @@ const app = express();
 const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
 const compression = require('compression');
+const fs = require('fs');
+const path = require('path');
 
 function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Load configuration
+let config = {};
+try {
+    const configPath = path.join(__dirname, 'config.json');
+    config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    console.log('Configuration loaded:', config);
+} catch (error) {
+    console.error('Error loading config.json, using defaults:', error.message);
+    config = { block_cheats_mobile_mac: true };
 }
 
 app.use(compression({
@@ -63,77 +76,23 @@ app.all('/player/growid/login/validate', (req, res) => {
         `Type: ${type} | GrowID: ${isGuestRequest ? 'GUEST_MODE' : trimmedGrowId} | Password: ${isGuestRequest ? '(guest)' : '***'} | Email: ${email} | Gender: ${gender}`
     );
 
-    // Must have _token and type at least
-    if (!_token || !type) {
-        console.log('Invalid request: missing _token or type');
-        res.setHeader('Content-Type', 'text/html');
-        return res.send(`{"status":"error","message":"Invalid request.","token":"","url":"","accountType":""}`);
+    // === MOBILE CHEAT DETECTION ===
+    if (config.block_cheats_mobile_mac) {
+        const { platformID = '0', mac = '02:00:00:00:00:00' } = req.body;
+        const platformId = String(platformID).trim();
+
+        console.log(`Platform ID: ${platformId}, MAC Address: ${mac}`);
+
+        // Check if this is a mobile platform (iOS or Android)
+        if (platformId === '2' || platformId === '4') {
+            // Mobile platforms must have the default MAC address
+            if (mac !== '02:00:00:00:00:00') {
+                console.log(`CHEAT DETECTED: Mobile platform ${platformId} with invalid MAC address: ${mac}`);
+                res.setHeader('Content-Type', 'text/html');
+                return res.send(`{"status":"error","message":"Cheats detected Logon fail: please login using the normal growtopia client","token":"","url":"","accountType":""}`);
+            }
+        }
     }
-
-    // ===== GUEST LOGIN → AUTO REGISTER RANDOM ACCOUNT =====
-    if (isGuestRequest) {
-        const guestId = 'Guest' + Math.floor(100000 + Math.random() * 900000);
-        const guestPass = 'g' + Math.floor(100000 + Math.random() * 900000);
-        const guestEmail = `${guestId.toLowerCase()}@guest.local`;
-
-        const tokenData =
-            `_token=${_token}` +
-            `&type=reg` +
-            `&growId=${guestId}` +
-            `&password=${guestPass}` +
-            `&email=${guestEmail}` +
-            `&gender=${gender}`;
-
-        const token = Buffer.from(tokenData).toString('base64');
-
-        res.setHeader('Content-Type', 'text/html');
-        return res.send(
-            `{"status":"success","message":"Guest account created.","token":"${token}","url":"","accountType":"growtopia"}`
-        );
-    }
-    // ======================================================
-
-    // For normal log / reg we require growId + password
-    if (!trimmedGrowId || !trimmedPassword) {
-        console.log('Invalid request: missing growId or password');
-        res.setHeader('Content-Type', 'text/html');
-        return res.send(`{"status":"error","message":"Invalid request.","token":"","url":"","accountType":""}`);
-    }
-
-    if (type === "reg" && !isValidEmail(email)) {
-        console.log('Invalid email format');
-        res.setHeader('Content-Type', 'text/html');
-        return res.send(`{"status":"error","message":"Invalid email.","token":"","url":"","accountType":""}`);
-    }
-
-    const tokenData = type === 'reg'
-        ? `_token=${_token}&type=${type}&growId=${trimmedGrowId}&password=${trimmedPassword}&email=${email}&gender=${gender}`
-        : `_token=${_token}&type=${type}&growId=${trimmedGrowId}&password=${trimmedPassword}`;
-
-    const token = Buffer.from(tokenData).toString('base64');
-
-    res.setHeader('Content-Type', 'text/html');
-    res.send(`{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia"}`);
-});
-app.all('/player/growid/login/validate', (req, res) => {
-    // === CLIENT ANALYSIS LOGGING ===
-    console.log('=== CLIENT ANALYSIS ===');
-    console.log(`IP Address: ${req.ip || req.connection.remoteAddress}`);
-    console.log(`User-Agent: ${req.headers['user-agent'] || 'Unknown'}`);
-    console.log(`Request Body: ${JSON.stringify(req.body, null, 2)}`);
-    console.log(`Headers: ${JSON.stringify(req.headers, null, 2)}`);
-    console.log('=======================');
-
-    const { type, growId = '', password = '', email = '', gender = 0, _token } = req.body;
-
-    const trimmedGrowId = (growId || '').trim();
-    const trimmedPassword = (password || '').trim();
-    const isGuestRequest =
-        type === 'guest' || (trimmedGrowId === '' && trimmedPassword === '');
-
-    console.log(
-        `Type: ${type} | GrowID: ${isGuestRequest ? 'GUEST_MODE' : trimmedGrowId} | Password: ${isGuestRequest ? '(guest)' : '***'} | Email: ${email} | Gender: ${gender}`
-    );
 
     // Must have _token and type at least
     if (!_token || !type) {
