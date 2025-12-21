@@ -6,6 +6,7 @@ const compression = require('compression');
 const fs = require('fs');
 const path = require('path');
 
+// --- HELPER FUNCTIONS ---
 function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -21,6 +22,7 @@ try {
     config = { block_cheats_mobile_mac: true };
 }
 
+// --- MIDDLEWARE ---
 app.use(compression({
     level: 5,
     filter: (req, res) => {
@@ -29,19 +31,41 @@ app.use(compression({
     }
 }));
 
+// We need these BEFORE the logger so req.body is populated
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 
+// --- GLOBAL LOGGER (Everything Logger) ---
 app.use((req, res, next) => {
+    const timestamp = new Date().toISOString();
+    console.log(`\n--- [INCOMING REQUEST] ${timestamp} ---`);
+    console.log(`URL:    ${req.method} ${req.url}`);
+    console.log(`IP:     ${req.ip || req.connection.remoteAddress}`);
+    
+    // Log Headers (Important for finding cheat client signatures)
+    console.log(`Headers:`, JSON.stringify(req.headers, null, 2));
+
+    // Log Query Parameters (e.g., /login?name=user)
+    if (Object.keys(req.query).length > 0) {
+        console.log(`Query:  `, JSON.stringify(req.query, null, 2));
+    }
+
+    // Log Body Data (Login info, token info, etc.)
+    if (req.body && Object.keys(req.body).length > 0) {
+        console.log(`Body:   `, JSON.stringify(req.body, null, 2));
+    } else {
+        console.log(`Body:    [Empty]`);
+    }
+
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    // Enhanced logging to see exactly what hits the server
+
     res.on('finish', () => {
-        console.log(`[${req.method}] ${req.url} | Status: ${res.statusCode}`);
+        console.log(`--- [RESPONSE SENT] Status: ${res.statusCode} ---\n`);
     });
     next();
 });
 
-app.use(express.json());
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
@@ -57,10 +81,17 @@ app.all('/player/login/dashboard', function (req, res) {
     let clientData = {};
     let rawData = '';
     
+    // Check if the body contains the typical Growtopia pipe-delimited string
     if (typeof req.body === 'object' && req.body !== null && !Array.isArray(req.body)) {
-        if (req.body.platformID || req.body.tankIDName) { clientData = req.body; }
-        else { const keys = Object.keys(req.body); if (keys.length > 0) rawData = keys[0]; }
-    } else if (typeof req.body === 'string') { rawData = req.body; }
+        if (req.body.platformID || req.body.tankIDName) { 
+            clientData = req.body; 
+        } else { 
+            const keys = Object.keys(req.body); 
+            if (keys.length > 0) rawData = keys[0]; 
+        }
+    } else if (typeof req.body === 'string') { 
+        rawData = req.body; 
+    }
 
     if (rawData && Object.keys(clientData).length === 0) {
         const lines = rawData.split(/\r?\n|\\n/);
@@ -70,12 +101,15 @@ app.all('/player/login/dashboard', function (req, res) {
         });
     }
 
+    // Log the parsed client data specifically
+    console.log("Parsed Client Data:", clientData);
+
     // Cheat Detection
     const platformID = clientData.platformID || '0';
     const mac = clientData.mac || '02:00:00:00:00:00';
     if (config.block_cheats_mobile_mac) {
         if ((String(platformID) === '2' || String(platformID) === '4') && mac !== '02:00:00:00:00:00') {
-            console.log(`CHEAT DETECTED: ${mac}`);
+            console.log(`!!! CHEAT DETECTED !!! MAC: ${mac} | Platform: ${platformID}`);
             return res.render(__dirname + '/public/html/cheat_detected.ejs', { data: clientData });
         }
     }
@@ -91,9 +125,6 @@ app.all('/player/login/form', function (req, res) {
 
 // --- VALIDATE (Web Login Step) ---
 app.all('/player/growid/login/validate', (req, res) => {
-    console.log('=== CLIENT VALIDATION REQUEST ===');
-    console.log(`Body: ${JSON.stringify(req.body, null, 2)}`);
-
     const { type, growId = '', password = '', email = '', gender = 0, _token } = req.body;
 
     const trimmedGrowId = (growId || '').trim();
@@ -115,20 +146,16 @@ app.all('/player/growid/login/validate', (req, res) => {
         return res.send(`{"status":"error","message":"Invalid request: Missing token or type.","token":"","url":"","accountType":""}`);
     }
 
-    // GUEST LOGIC
     if (isGuestRequest) {
         const guestId = 'Guest' + Math.floor(100000 + Math.random() * 900000);
         const guestPass = 'g' + Math.floor(100000 + Math.random() * 900000);
         const guestEmail = `${guestId.toLowerCase()}@guest.local`;
-
         const tokenData = `_token=${_token}&type=reg&growId=${guestId}&password=${guestPass}&email=${guestEmail}&gender=${gender}`;
         const token = Buffer.from(tokenData).toString('base64');
-
         res.setHeader('Content-Type', 'text/html');
         return res.send(`{"status":"success","message":"Guest account created.","token":"${token}","url":"","accountType":"growtopia"}`);
     }
 
-    // NORMAL LOGIC
     if (!trimmedGrowId || !trimmedPassword) {
         res.setHeader('Content-Type', 'text/html');
         return res.send(`{"status":"error","message":"Missing username or password.","token":"","url":"","accountType":""}`);
@@ -149,45 +176,33 @@ app.all('/player/growid/login/validate', (req, res) => {
     res.send(`{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia"}`);
 });
 
-// --- CHECK TOKEN (The Fix for "Stuck on Connecting") ---
-// This route is called by your C++ Server (server.exe) to verify the player.
+// --- CHECK TOKEN ---
 app.all('/player/growid/checkToken', (req, res) => {
-    // 1. Log the request clearly so you can see if Server.exe is connecting
-    console.log(`[CheckToken] Incoming request from Game Server:`, req.body);
-
-    // 2. Accept BOTH 'token' and 'refreshToken'. 
-    // Most C++ sources send 'token', your old script only looked for 'refreshToken'.
     const incomingToken = req.body.token || req.body.refreshToken;
 
-    // 3. Fail gracefully if missing
     if (!incomingToken) {
-        console.log('[CheckToken] Error: No token provided in request.');
         res.setHeader('Content-Type', 'text/html');
         return res.send(`{"status":"error","message":"Missing token"}`);
     }
 
-    // 4. Send Success 
-    // We do NOT modify the token. We simply tell the C++ server it is valid.
     res.setHeader('Content-Type', 'text/html');
     res.send(JSON.stringify({
         status: "success",
         message: "Token is valid.",
-        token: incomingToken, // Send back the exact token received
+        token: incomingToken,
         url: "",
         accountType: "growtopia"
     }));
 });
 
-// Redirect root
 app.all('/', function (req, res) {
     res.redirect('/player/login/dashboard');
 });
 
-// Register Page
 app.all('/player/login/register', function (req, res) {
     res.render(__dirname + '/public/html/register.ejs', { data: {} });
 });
 
 app.listen(5000, function () {
-    console.log(`Listening on port 5000`);
+    console.log(`[SERVER RUNNING] Listening on port 5000`);
 });
