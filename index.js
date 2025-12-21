@@ -18,7 +18,7 @@ try {
     console.log('Configuration loaded:', config);
 } catch (error) {
     console.error('Error loading config.json, using defaults:', error.message);
-    config = { block_cheats_mobile_mac: true };
+    config = { block_cheats_mobile_mac: false };
 }
 
 app.use(compression({
@@ -34,7 +34,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    // Enhanced logging to see exactly what hits the server
     res.on('finish', () => {
         console.log(`[${req.method}] ${req.url} | Status: ${res.statusCode}`);
     });
@@ -92,27 +91,31 @@ app.all('/player/login/form', function (req, res) {
 // --- VALIDATE (Web Login Step) ---
 app.all('/player/growid/login/validate', (req, res) => {
     console.log('=== CLIENT VALIDATION REQUEST ===');
-    console.log(`Body: ${JSON.stringify(req.body, null, 2)}`);
+    
+    // 1. Calculate the Dashboard URL automatically
+    // This ensures that whatever IP the player uses to connect, the link matches it.
+    const host = req.headers.host || 'localhost:5000';
+    const dashboardUrl = `${req.protocol}://${host}/player/login/dashboard`;
+    
+    console.log(`[INFO] Sending Dashboard URL to client: ${dashboardUrl}`);
 
     const { type, growId = '', password = '', email = '', gender = 0, _token } = req.body;
-
     const trimmedGrowId = (growId || '').trim();
     const trimmedPassword = (password || '').trim();
     const isGuestRequest = type === 'guest' || (trimmedGrowId === '' && trimmedPassword === '');
 
-    // Mobile Cheat Detection
     if (config.block_cheats_mobile_mac) {
         const { platformID = '0', mac = '02:00:00:00:00:00' } = req.body;
         const platformId = String(platformID).trim();
         if ((platformId === '2' || platformId === '4') && mac !== '02:00:00:00:00:00') {
             res.setHeader('Content-Type', 'text/html');
-            return res.send(`{"status":"error","message":"Cheats detected. Please use the normal Growtopia client.","token":"","url":"","accountType":""}`);
+            return res.send(`{"status":"error","message":"Cheats detected.","token":"","url":"","accountType":""}`);
         }
     }
 
     if (!_token || !type) {
         res.setHeader('Content-Type', 'text/html');
-        return res.send(`{"status":"error","message":"Invalid request: Missing token or type.","token":"","url":"","accountType":""}`);
+        return res.send(`{"status":"error","message":"Invalid request.","token":"","url":"","accountType":""}`);
     }
 
     // GUEST LOGIC
@@ -125,7 +128,8 @@ app.all('/player/growid/login/validate', (req, res) => {
         const token = Buffer.from(tokenData).toString('base64');
 
         res.setHeader('Content-Type', 'text/html');
-        return res.send(`{"status":"success","message":"Guest account created.","token":"${token}","url":"","accountType":"growtopia"}`);
+        // IMPORTANT: We send 'url' here so guest accounts also get the dashboard popup
+        return res.send(`{"status":"success","message":"Guest account created.","token":"${token}","url":"${dashboardUrl}","accountType":"growtopia"}`);
     }
 
     // NORMAL LOGIC
@@ -146,44 +150,39 @@ app.all('/player/growid/login/validate', (req, res) => {
     const token = Buffer.from(tokenData).toString('base64');
 
     res.setHeader('Content-Type', 'text/html');
-    res.send(`{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia"}`);
+    // IMPORTANT: We send 'url' here so normal accounts get the popup
+    res.send(`{"status":"success","message":"Account Validated.","token":"${token}","url":"${dashboardUrl}","accountType":"growtopia"}`);
 });
 
-// --- CHECK TOKEN (The Fix for "Stuck on Connecting") ---
-// This route is called by your C++ Server (server.exe) to verify the player.
+// --- CHECK TOKEN ---
 app.all('/player/growid/checkToken', (req, res) => {
-    // 1. Log the request clearly so you can see if Server.exe is connecting
-    console.log(`[CheckToken] Incoming request from Game Server:`, req.body);
+    console.log(`[CheckToken] Request from C++ Server`);
 
-    // 2. Accept BOTH 'token' and 'refreshToken'. 
-    // Most C++ sources send 'token', your old script only looked for 'refreshToken'.
+    // Ensure we also calculate the URL here, in case the C++ server triggers the popup
+    const host = req.headers.host || 'localhost:5000';
+    const dashboardUrl = `${req.protocol}://${host}/player/login/dashboard`;
+
     const incomingToken = req.body.token || req.body.refreshToken;
 
-    // 3. Fail gracefully if missing
     if (!incomingToken) {
-        console.log('[CheckToken] Error: No token provided in request.');
         res.setHeader('Content-Type', 'text/html');
         return res.send(`{"status":"error","message":"Missing token"}`);
     }
 
-    // 4. Send Success 
-    // We do NOT modify the token. We simply tell the C++ server it is valid.
     res.setHeader('Content-Type', 'text/html');
     res.send(JSON.stringify({
         status: "success",
         message: "Token is valid.",
-        token: incomingToken, // Send back the exact token received
-        url: "",
+        token: incomingToken,
+        url: dashboardUrl, // We send the URL here too
         accountType: "growtopia"
     }));
 });
 
-// Redirect root
 app.all('/', function (req, res) {
     res.redirect('/player/login/dashboard');
 });
 
-// Register Page
 app.all('/player/login/register', function (req, res) {
     res.render(__dirname + '/public/html/register.ejs', { data: {} });
 });
